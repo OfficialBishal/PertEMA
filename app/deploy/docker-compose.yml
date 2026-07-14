@@ -1,0 +1,98 @@
+# PertEMA backend - CPU-only reliability scoring service.
+#
+# One-command bring-up (run from the repo root):
+#   docker compose -f app/deploy/docker-compose.yml up
+#
+# The scoring path needs no GPU. See app/deploy/OPERATIONS.md for the full
+# operator guide. Docker is not runnable on the research host, so this file is
+# validated by review only.
+
+services:
+  backend:
+    build:
+      # Context is app/ (parent of this deploy dir) so the multi-GB container
+      # images and datasets at the repo root are never sent to the daemon.
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: pertema-backend:0.1.0
+    container_name: pertema-backend
+    # Publish the API. Change only the host side with HOST_PORT. The in-container
+    # port stays 8000 so EXPOSE and the healthcheck stay consistent.
+    ports:
+      - "${HOST_PORT:-8000}:8000"
+    environment:
+      # Bound the CPU thread pools. The scoring path is numpy plus xgboost on
+      # CPU and will otherwise oversubscribe threads on a many-core host.
+      OMP_NUM_THREADS: "${OMP_NUM_THREADS:-2}"
+      OPENBLAS_NUM_THREADS: "${OPENBLAS_NUM_THREADS:-2}"
+      MKL_NUM_THREADS: "${MKL_NUM_THREADS:-2}"
+      NUMEXPR_NUM_THREADS: "${NUMEXPR_NUM_THREADS:-2}"
+    # Override the image default CMD so the worker count and log level are
+    # env-driven. The in-container port is fixed at 8000 (see the ports note).
+    command: >
+      uvicorn app.backend.main:app
+      --host 0.0.0.0 --port 8000
+      --workers ${UVICORN_WORKERS:-1}
+      --log-level ${LOG_LEVEL:-info}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    # To run a different frozen model without rebuilding, mount it over the baked
+    # path. The subdirectory name must stay pertema_model_v0.1.0 because
+    # scoring.default_model() resolves that exact path and the shipped code is
+    # not modified here. The optional second mount enables the /benchmark route,
+    # which otherwise returns 404 because results/ is not baked into the image.
+    # volumes:
+    #   - ${MODEL_DIR:-./model}:/srv/app/model:ro
+    #   - ${RESULTS_DIR:-../results}:/srv/results:ro
+
+# ---------------------------------------------------------------------------
+# Fuller stack (Redis queue + async worker + nginx reverse proxy and TLS).
+#
+# These are commented stubs, not part of the shipped image. The current backend
+# serves the synchronous, CPU-only scoring path and needs none of them. The
+# worker module is not implemented in this image, so its service is a stub and
+# its command line is intentionally left inert.
+#
+# To adopt the fuller stack, merge the services below into the services block
+# above and supply the referenced config files.
+# ---------------------------------------------------------------------------
+#
+#   redis:
+#     image: redis:7-alpine
+#     restart: unless-stopped
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "ping"]
+#       interval: 30s
+#       timeout: 5s
+#       retries: 3
+#
+#   worker:
+#     build:
+#       context: ..
+#       dockerfile: deploy/Dockerfile
+#     # command: python -m app.backend.worker   # stub, worker not implemented yet
+#     environment:
+#       REDIS_URL: "redis://redis:6379/0"
+#       OMP_NUM_THREADS: "${OMP_NUM_THREADS:-2}"
+#     depends_on:
+#       redis:
+#         condition: service_healthy
+#     restart: unless-stopped
+#
+#   nginx:
+#     image: nginx:1.27-alpine
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     # volumes:
+#     #   - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#     #   - ./tls:/etc/nginx/tls:ro
+#     depends_on:
+#       backend:
+#         condition: service_healthy
+#     restart: unless-stopped

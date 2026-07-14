@@ -1,0 +1,2 @@
+comparison,spearman_pertema,spearman_mcdropout,spearman_magnitude,aurc_pertema,aurc_mcdropout,aurc_magnitude,aurc_oracle,aurc_noselect
+pertema_vs_mcdropout_transfer,0.111 +/- 0.017,0.039 +/- 0.006,-0.131 +/- 0.006,0.904 +/- 0.001,0.907 +/- 0.001,0.904 +/- 0.001,0.855 +/- 0.001,0.910 +/- 0.001

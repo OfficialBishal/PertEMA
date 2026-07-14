@@ -1,0 +1,2 @@
+n,n_conditions,mean_floor_raw,mean_floor_sb,mean_oracle_err,mean_best_fixed_err,mean_oracle_headroom,real_achievable_gain,f_noise_shared,oracle_below_floor_frac,selection_bias_in_headroom,corr_oracle_vs_floor
+33972,3,0.8881109943407686,0.6839254753235506,0.6218031597343782,0.7037095542557176,0.08190639452133923,0.019784078932166937,0.9718860163081178,0.5767102319557282,0.06212231558917229,-0.031562107472159824

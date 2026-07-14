@@ -1,0 +1,2 @@
+axis,spearman_est,spearman_rand,spearman_labelshuffle,aurc_est,aurc_similarity,aurc_random_feat,aurc_oracle,aurc_noselect,mean_transfer_err
+external_k562_rpe1,0.567 +/- 0.005,-0.007 +/- 0.011,0.010 +/- 0.011,0.518 +/- 0.002,0.601 +/- 0.002,0.594 +/- 0.008,0.459 +/- 0.000,0.598 +/- 0.000,0.598 +/- 0.000

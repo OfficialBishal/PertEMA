@@ -1,0 +1,2 @@
+comparison,spearman_pertema,spearman_intrinsic,spearman_magnitude,aurc_pertema,aurc_intrinsic,aurc_magnitude,aurc_oracle,aurc_noselect
+pertema_vs_intrinsic_uncertainty_transfer,0.152 +/- 0.005,0.072 +/- 0.004,-0.076 +/- 0.003,0.907 +/- 0.000,0.911 +/- 0.000,0.910 +/- 0.000,0.866 +/- 0.000,0.918 +/- 0.000

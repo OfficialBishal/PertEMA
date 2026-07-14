@@ -1,0 +1,159 @@
+[workspace]
+authors = ["OfficialBishal <bishal.modern@gmail.com>"]
+channels = ["conda-forge", "bioconda"]
+name = "pertema"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+# RHEL 7 host glibc is 2.17. Proven recipe on this server (see ~/2024-12-12-Temporal-Differential-Loops-Prediction
+# and ~/ARC_GEOM): pytorch-gpu or cuda 12.x conda builds pull NVIDIA cudart/libcurand stacks that require host
+# glibc >= 2.28 and fail to solve. Pinned pytorch 2.1 with cuda-version 11.8 is the older conda-forge line that
+# still targets glibc 2.17. The 12.4 driver is forward compatible with the 11.8 user-mode runtime, so GPU works.
+# Single-cell heavy stack (scanpy, pertpy, scPerturb) is held out on purpose: numba and friends want newer glibc.
+# We read h5ad through anndata and compute pseudobulk, delta LFC, and E-distance directly in numpy and scipy.
+[system-requirements]
+cuda = "12.4"
+
+# GPU access on this server: a system CUDA MPS control daemon runs at /tmp/nvidia-mps and torch CUDA
+# init HANGS trying to connect to it (even torch.cuda.is_available() blocks forever). Pointing
+# CUDA_MPS_PIPE_DIRECTORY at an empty directory bypasses MPS and accesses the GPU directly. Every GPU
+# script must ensure that directory exists (mkdir -p). CUDA_VISIBLE_DEVICES=0 enforces the GPU-0-only
+# mandate on every pixi run. PYTHONHASHSEED fixes hash-based nondeterminism.
+[activation.env]
+CUDA_VISIBLE_DEVICES = "0"
+CUDA_MPS_PIPE_DIRECTORY = "/tmp/pertema_nomps"
+PYTHONHASHSEED = "0"
+# This host has 128 cores. Unbounded OpenMP/BLAS oversubscribes threads and makes sklearn/xgboost
+# pathologically slow (a single HistGBR fit stalled for minutes). Cap threads for every pixi run.
+OMP_NUM_THREADS = "8"
+OPENBLAS_NUM_THREADS = "8"
+MKL_NUM_THREADS = "8"
+NUMEXPR_NUM_THREADS = "8"
+
+[tasks]
+gpu-check = "python -c \"import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'no-cuda')\""
+serve = "uvicorn app.backend.main:app --host 0.0.0.0 --port 8000"
+app-test = "python app/backend/test_api.py"
+score-test = "python app/backend/test_scoring.py"
+build-example = "python app/examples/build_example.py"
+freeze-model = "python src/pertema/freeze_model.py"
+
+# One-command reproducibility (A6): `pixi run reproduce` regenerates every headline number from a clean
+# checkout. Steps are chained by depends-on so pixi runs them in order; downloads resume/skip if present.
+data = "python src/data/download.py core meta"
+splits = { cmd = "python src/eval/make_splits.py", depends-on = ["data"] }
+ceiling = { cmd = "python src/eval/ceiling.py", depends-on = ["data"] }
+baseline-feat = { cmd = "python src/data/control_baseline.py", depends-on = ["data"] }
+embedding = { cmd = "python src/data/gene_embedding.py", depends-on = ["data", "splits"] }
+predictors = { cmd = "python src/eval/run_predictors.py", depends-on = ["splits", "embedding"] }
+estimator = { cmd = "python src/pertema/run_estimator.py", depends-on = ["predictors", "baseline-feat", "embedding"] }
+transfer = { cmd = "python src/eval/run_transfer.py", depends-on = ["splits", "embedding"] }
+transfer-estimator = { cmd = "python src/pertema/run_transfer_estimator.py", depends-on = ["transfer", "baseline-feat", "embedding"] }
+mechanism = { cmd = "python src/pertema/mechanism.py", depends-on = ["transfer", "baseline-feat", "embedding"] }
+calibration = { cmd = "python src/pertema/calibration.py", depends-on = ["transfer", "baseline-feat", "embedding"] }
+intrinsic-uncertainty = { cmd = "python src/pertema/run_intrinsic_uncertainty.py", depends-on = ["data", "splits", "embedding", "baseline-feat"] }
+router = { cmd = "python src/pertema/run_router.py", depends-on = ["predictors", "baseline-feat", "embedding"] }
+router-replogle = { cmd = "python src/eval/run_router_replogle.py", depends-on = ["data"] }
+parity = { cmd = "python src/eval/run_parity.py", depends-on = ["data", "splits", "embedding"] }
+parity-replogle = { cmd = "python src/eval/run_parity_replogle.py", depends-on = ["data"] }
+norman-effects = "python src/data/norman_effects.py"                                                   # D3 Norman effects (local)
+parity-norman = { cmd = "python src/eval/run_parity_norman.py", depends-on = ["norman-effects"] }      # D3/D5 3rd dataset
+adamson-effects = "python src/data/adamson_effects.py"                                                 # D3 Adamson (scPerturb download)
+parity-adamson = { cmd = "python src/eval/run_parity_adamson.py", depends-on = ["adamson-effects"] }   # D3/D5 4th dataset
+# D1 foundation-model roster. Extraction runs in the isolated deep env (pixi run -e deep foundation-embeddings);
+# parity over the frozen embeddings runs in the default env and consumes only the npz files.
+foundation-embeddings = "python src/eval/extract_foundation_embeddings.py geneformer && python src/eval/extract_foundation_embeddings.py scgpt && python src/eval/extract_foundation_embeddings.py gene2vec"
+parity-foundation = { cmd = "python src/eval/run_parity_foundation.py", depends-on = ["data", "splits"] }
+parity-wong = { cmd = "python src/eval/run_parity_wong.py", depends-on = ["data", "splits"] }          # D4 Wong metrics
+router-diverse = { cmd = "python src/eval/run_router_diverse.py", depends-on = ["data", "splits"] }    # D6 diverse roster
+# Publication push, the six experiments. E2/E3/E4 are CPU-only and consume verified on-disk artifacts.
+error-correlation = { cmd = "python src/eval/run_error_correlation.py", depends-on = ["data", "splits", "embedding"] }  # E2 (P2)
+noise-ceiling = { cmd = "python src/eval/run_noise_ceiling.py", depends-on = ["error-correlation"] }                    # E3 (P3)
+error-correlation-replogle = { cmd = "python src/eval/run_error_correlation_replogle.py", depends-on = ["data"] }       # E2 Replogle
+noise-ceiling-replogle = { cmd = "python src/eval/run_noise_ceiling_replogle.py", depends-on = ["error-correlation-replogle"] }  # E3 Replogle
+error-correlation-norman = { cmd = "python src/eval/run_error_correlation_dataset.py norman", depends-on = ["norman-effects"] }
+noise-ceiling-norman = { cmd = "python src/eval/run_noise_ceiling_dataset.py norman", depends-on = ["error-correlation-norman"] }
+error-correlation-adamson = { cmd = "python src/eval/run_error_correlation_dataset.py adamson", depends-on = ["adamson-effects"] }
+noise-ceiling-adamson = { cmd = "python src/eval/run_noise_ceiling_dataset.py adamson", depends-on = ["error-correlation-adamson"] }
+routing-phase = { cmd = "python src/eval/run_routing_phase.py", depends-on = ["error-correlation", "noise-ceiling", "error-correlation-replogle", "noise-ceiling-replogle", "noise-ceiling-norman", "noise-ceiling-adamson"] }  # E4 (P4)
+figures-mechanism = { cmd = "python src/pertema/figures_mechanism.py", depends-on = ["routing-phase"] }                 # F3 headline
+estimator-transfer = { cmd = "python src/eval/run_estimator_transfer.py", depends-on = ["error-correlation", "error-correlation-replogle", "error-correlation-norman", "error-correlation-adamson"] }  # E5 (P5) venue
+benchmark-mechanism = { cmd = "python src/pertema/build_mechanism_layer.py", depends-on = ["routing-phase", "theory"] }  # P15 open-benchmark mechanism layer (+ X2 theory r*)
+mc-dropout = { cmd = "python src/pertema/run_mc_dropout.py", depends-on = ["transfer", "baseline-feat", "embedding"] }  # D2
+nsweep = { cmd = "python src/pertema/run_nsweep.py", depends-on = ["transfer-estimator"] }             # D7 robustness
+benchmark = { cmd = "python src/pertema/build_benchmark.py", depends-on = ["estimator", "transfer-estimator", "intrinsic-uncertainty", "mc-dropout"] }
+# D1 foundation roster reproduce (two steps: extract in the deep env, then analyse in the default env).
+# Run as: pixi run -e deep foundation-embeddings && pixi run reproduce-foundation
+reproduce-foundation = { depends-on = ["parity-foundation", "parity-wong", "router-diverse"] }
+utility = { cmd = "python src/pertema/run_utility.py", depends-on = ["transfer", "baseline-feat", "embedding"], env = { PERTEMA_BPERM = "1000" } }
+utility-repro = { cmd = "python src/pertema/run_utility_reproducibility.py", depends-on = ["utility"] }
+utility-precision = { cmd = "python src/pertema/run_utility_precision.py", depends-on = ["utility"] }        # E6 precision-at-k
+# full push tasks (X1-X10, U6, U10, tables, figures). CPU-only, consume on-disk artifacts.
+router-adamson = { cmd = "python src/eval/run_router_adamson.py", depends-on = ["adamson-effects"] }                    # X1 pre-registered routing test
+router-adamson-sens = { cmd = "python src/eval/run_router_adamson_sensitivity.py", depends-on = ["adamson-effects"] }   # X1 estimator sensitivity
+theory = { cmd = "python src/eval/run_theory.py", depends-on = ["error-correlation", "error-correlation-replogle", "error-correlation-norman", "error-correlation-adamson"] }  # X2 analytic theory
+rho-artifact = { cmd = "python src/eval/run_rho_artifact.py", depends-on = ["error-correlation", "error-correlation-replogle", "error-correlation-norman", "error-correlation-adamson"] }  # X3
+noise-ceiling-guide = { cmd = "python src/eval/run_noise_ceiling_guide_gladstone.py", depends-on = ["error-correlation"] }  # X4 guide-level floor
+gnn-bound = { cmd = "python src/eval/run_gnn_bound.py", depends-on = ["error-correlation", "theory"] }                  # X5 bounded-risk GNN
+winner-curse = { cmd = "python src/eval/run_winner_curse.py", depends-on = ["noise-ceiling"] }                          # U6 debiasing
+diagnostics = { cmd = "python src/eval/run_diagnostics.py", depends-on = ["predictors"] }                               # X9/X10 mode-collapse + effect-size
+transfer-confound = { cmd = "python src/eval/run_transfer_confound.py", depends-on = ["estimator-transfer", "transfer"] }  # X6/X7
+multiple-comparison = { cmd = "python src/eval/run_multiple_comparison.py", depends-on = ["utility-precision"] }        # U10 BH FDR
+tables = { cmd = "python src/pertema/build_tables.py", depends-on = ["benchmark", "error-correlation", "noise-ceiling", "winner-curse", "theory", "rho-artifact", "benchmark-mechanism"] }  # U13 T1-T7
+figures-main = { cmd = "python src/pertema/fig_F1.py && python src/pertema/fig_F2.py && python src/pertema/fig_F3.py && python src/pertema/fig_F4.py && python src/pertema/fig_F5.py && python src/pertema/fig_F6.py && python src/pertema/fig_F7.py", depends-on = ["figures", "figures-mechanism", "theory", "winner-curse", "router-adamson", "router-adamson-sens", "estimator-transfer"] }  # U13 F1-F7
+supp-figures = { cmd = "python src/pertema/build_supp_figures.py", depends-on = ["diagnostics", "transfer-confound", "gnn-bound", "multiple-comparison", "theory", "rho-artifact"] }  # U13 S1-S7
+figures = { cmd = "python src/pertema/figures.py", depends-on = ["transfer-estimator", "transfer"] }
+figures-supp = { cmd = "python src/pertema/figures_supp.py", depends-on = ["utility", "utility-repro", "calibration", "mechanism"] }
+reproduce = { depends-on = ["ceiling", "estimator", "transfer-estimator", "mechanism", "calibration", "utility", "utility-repro", "router", "router-replogle", "mc-dropout", "nsweep", "parity", "parity-replogle", "intrinsic-uncertainty", "benchmark", "figures", "figures-supp", "error-correlation", "noise-ceiling", "routing-phase", "figures-mechanism"] }
+# App-side reproduce (S4): one command, no primary data needed. Rebuilds the frozen inference artifact and
+# the bundled example from committed result files, then runs the scoring + end-to-end acceptance tests.
+reproduce-app = "python src/pertema/freeze_model.py && python app/examples/build_example.py && python app/backend/test_scoring.py && python app/backend/test_api.py"
+# Full end-to-end (S4): the science DAG first (needs the primary data), then freeze the artifact on the
+# fresh results, rebuild the example, and assert the app scores it. One command: pixi run reproduce-all.
+reproduce-all = { cmd = "python src/pertema/freeze_model.py && python app/examples/build_example.py && python app/backend/test_scoring.py && python app/backend/test_api.py", depends-on = ["reproduce"] }
+# full reproduce (U18): the core reproduce plus every ULT headline number, one command from the primary
+# data. Foundation embeddings are extracted separately in the deep env (pixi run -e deep foundation-embeddings).
+reproduce-ult = { depends-on = ["reproduce", "error-correlation-replogle", "noise-ceiling-replogle", "error-correlation-norman", "noise-ceiling-norman", "error-correlation-adamson", "noise-ceiling-adamson", "estimator-transfer", "benchmark-mechanism", "utility-precision", "router-adamson", "router-adamson-sens", "theory", "rho-artifact", "noise-ceiling-guide", "gnn-bound", "winner-curse", "diagnostics", "transfer-confound", "multiple-comparison", "tables", "figures-main", "supp-figures"] }
+
+# Versions pinned to the exact builds proven glibc-2.17-compatible in
+# ~/2024-12-12-Temporal-Differential-Loops-Prediction/pixi.lock (resolved on this server, June 2026).
+# A fresh unpinned solve grabs newer conda-forge rebuilds that now require glibc >= 2.28 and fail.
+[dependencies]
+python = "==3.11.15"
+pytorch = "==2.1.2"
+cuda-version = "==11.8"
+numpy = "==1.26.4"
+scipy = "==1.17.1"
+pandas = "==3.0.1"
+scikit-learn = "==1.8.0"
+h5py = "==3.16.0"
+networkx = "==3.6.1"
+xgboost = "==3.2.0"
+matplotlib = "==3.10.8"
+seaborn = "==0.13.2"
+pyyaml = "==6.0.3"
+tqdm = "*"
+pip = "*"
+
+# Pure-Python single-cell tooling comes from PyPI on purpose: recent conda-forge anndata/mudata builds
+# declare __glibc >= 2.28 and fail to solve on this RHEL 7 host (glibc 2.17), but the PyPI wheels are
+# py3-none-any and run anywhere. torch-geometric is also PyPI here (conda pyg needs pytorch-cuda / newer glibc).
+[pypi-dependencies]
+anndata = "*"
+fastapi = "*"
+uvicorn = "*"
+httpx = "*"
+scienceplots = ">=2.2.2, <3"
+
+# Isolated deep-model environment (D1 foundation-model roster). Layered on the SAME pinned conda stack
+# (python 3.11.15, pytorch 2.1.2 cu11.8) so the reproducible scientific env is untouched, with only PyPI
+# tooling added to EXTRACT pretrained gene embeddings from foundation models. The extraction writes plain
+# npz files that the default env consumes for parity, so nothing heavy leaks into the reproduce path. Run
+# deep-only steps with: pixi run -e deep <cmd>. Solving/removing this env never alters the default env.
+[feature.deep.pypi-dependencies]
+transformers = "==4.40.2"
+huggingface-hub = "*"
+safetensors = "*"
+
+[environments]
+deep = ["deep"]

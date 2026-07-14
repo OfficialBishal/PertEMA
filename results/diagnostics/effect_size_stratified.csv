@@ -1,0 +1,4 @@
+effect_stratum,n,mean_true_magnitude,mean_error,magnitude_reliability_spearman
+small,33983,0.371,0.821,-0.1491
+medium,33983,0.431,0.813,-0.0275
+large,33983,0.554,0.82,0.0646

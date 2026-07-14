@@ -1,0 +1,4 @@
+claim,source
+Winner's-curse selection-bias fraction 0.76 (95% CI 0.70-0.82),results/ceiling/winner_curse_debiased.csv
+Reproducibility shortlist uplift over magnitude +0.049 to +0.063 (frac>0 0.99+),results/utility/reproducibility_uplift.csv
+"Adamson routing routed-minus-bestfixed +0.016 (frac-better 0.339, below 0.95 kill criterion)",results/pertema/router_adamson.csv

@@ -1,0 +1,2 @@
+n_transfer_pairs,between_pair_error_spread_std,hardest_transfer,hardest_error,easiest_transfer,easiest_error,pooled_reliability_spearman,within_pair_reliability_spearman
+6,0.0145,Stim8hr->Rest,0.8952,Stim48hr->Stim8hr,0.8545,0.146,0.068

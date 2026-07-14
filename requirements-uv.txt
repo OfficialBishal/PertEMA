@@ -1,0 +1,31 @@
+# uv-based reproduction path (alternative to the canonical pixi environment).
+#
+# Scope: the CPU analysis, figures, tables, and web app. These pins mirror the pinned
+# pixi/conda environment in pixi.toml; uv resolves the transitive dependencies at install
+# time from PyPI. The GPU predictor training and foundation-model embedding extraction
+# (pytorch 2.1.2 + CUDA 11.8) stay on the canonical pixi path, because those conda builds
+# are not reproduced from PyPI wheels on this host. See README.md.
+#
+#   uv venv --python 3.11
+#   uv pip install -r requirements-uv.txt
+#   uv run python src/pertema/figures_paper.py        # regenerate F1-F7 from committed results/
+#   uv run python src/pertema/build_tables_latex.py   # regenerate the manuscript tables
+
+numpy==1.26.4
+scipy==1.17.1
+pandas==3.0.1
+scikit-learn==1.8.0
+xgboost==3.2.0
+matplotlib==3.10.8
+seaborn==0.13.2
+h5py==3.16.0
+networkx==3.6.1
+pyyaml==6.0.3
+tqdm
+anndata
+scienceplots>=2.2.2,<3
+
+# web app (optional)
+fastapi
+uvicorn
+httpx

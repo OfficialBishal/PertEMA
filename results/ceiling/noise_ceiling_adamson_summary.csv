@@ -1,0 +1,2 @@
+dataset,n,mean_floor_sb,mean_r_AB,best_fixed_err,f_noise_shared,floor_kind
+adamson,88,0.03799894039371298,0.8826973454682665,0.5342678899566332,0.07112338418241339,cell_split_half_technical

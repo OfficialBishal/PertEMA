@@ -1,0 +1,2 @@
+axis,seed,n,fixed_mean_global,fixed_ridge_embed,fixed_knn_coexpr_k25,best_fixed_err,routed_err,oracle_err,delta_vs_bestfixed,frac_boot_better,route_agree_bestfixed,best_fixed
+replogle_k562_within,43.0000 +/- 1.1316,213.0000 +/- 0.0000,0.5499 +/- 0.0014,0.6243 +/- 0.0042,0.5186 +/- 0.0024,0.5186 +/- 0.0024,0.5291 +/- 0.0052,0.4844 +/- 0.0014,-0.0104 +/- 0.0050,0.0172 +/- 0.0182,0.5790 +/- 0.0273,knn_coexpr_k25

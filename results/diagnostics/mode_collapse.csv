@@ -1,0 +1,5 @@
+predictor,pred_magnitude_sd,true_magnitude_sd,dispersion_ratio,rank_corr_pred_vs_true_magnitude
+mean_global,0.0005,0.0942,0.0048,0.0054
+mean_condition,0.0078,0.0942,0.0832,0.303
+ridge_embed,0.012,0.0942,0.127,0.2178
+knn_coexpr_k25,0.0168,0.0942,0.1778,0.232

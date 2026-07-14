@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PertEMA - Tool</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230072B2'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23fff'/%3E%3Crect x='3' y='6.5' width='7.5' height='2' fill='%23A7DFF0'/%3E%3Crect x='3' y='10' width='5' height='2' fill='%23E69F00'/%3E%3C/svg%3E">
+<style>
+  /* Shared shell variables (light theme via CSS custom properties). */
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a6270; --card:#f6f8fa; --border:#e3e7ec; --accent:#0072B2;
+    --band-high:#0072B2; --band-moderate:#009E73; --band-low:#E69F00; --band-verylow:#D55E00;
+    --line:#e3e7ec;
+    --high:#0072B2; --moderate:#009E73; --low:#E69F00; --verylow:#D55E00;
+  }
+  body{ background:var(--bg); color:var(--fg); }
+  .site-nav{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:1rem;
+    padding:.6rem 1rem; background:var(--card); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .site-nav .brand{ font-weight:700; color:var(--accent); text-decoration:none; font-size:1.05rem; letter-spacing:.02em; }
+  .site-nav nav{ display:flex; gap:.9rem; flex-wrap:wrap; margin-left:auto; }
+  .site-nav nav a{ color:var(--fg); text-decoration:none; font-size:.92rem; opacity:.85; }
+  .site-nav nav a:hover{ opacity:1; }
+  .site-nav nav a.active{ color:var(--accent); font-weight:600; opacity:1; border-bottom:2px solid var(--accent); }
+  .site-footer{ margin-top:2.5rem; padding:1rem; border-top:1px solid var(--border); color:var(--muted);
+    font-size:.85rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+  .site-footer .ver{ font-family:ui-monospace,Menlo,Consolas,monospace; background:var(--card);
+    border:1px solid var(--border); border-radius:4px; padding:.1rem .4rem; }
+  .site-footer a{ color:var(--accent); text-decoration:none; }
+
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);background:var(--bg)}
+  header.hero{padding:28px 32px 18px;border-bottom:1px solid var(--line);max-width:1100px;margin:0 auto}
+  h1{margin:0 0 4px;font-size:22px;font-weight:640}
+  .tagline{font-size:15px;font-weight:600;margin:2px 0 10px}
+  .sub{color:var(--muted);font-size:14px;max-width:820px;margin:4px 0}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 2px}
+  .chip{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--accent);
+    color:var(--accent);background:transparent;letter-spacing:.01em}
+  main{padding:24px 32px;max-width:1100px;margin:0 auto}
+  .row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+  .card.primary{border:2px solid var(--accent);box-shadow:0 1px 6px rgba(0,114,178,.12)}
+  .integrity{flex:1;min-width:230px}
+  .integrity b{font-weight:620}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:13.5px}
+  .kv span:last-child{color:var(--muted);text-align:right}
+  .warn{background:#fff8ec;border:1px solid #f0d69a;color:#7a5b12;border-radius:8px;padding:10px 14px;font-size:13.5px;margin-bottom:18px}
+  .errbox{background:#fdecec;border:1px solid #e3a5a5;color:#8a1f1f;border-radius:8px;padding:10px 14px;font-size:13.5px;margin-bottom:18px}
+  button{font:inherit;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;min-height:38px}
+  button.ghost{background:var(--card);color:var(--fg);border:1px solid var(--border)}
+  button:disabled{opacity:.55;cursor:progress}
+  textarea,select{background:var(--bg);color:var(--fg);border:1px solid var(--border)}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);
+    border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* N6 accessibility: a visible keyboard-focus ring on every interactive control (colorblind-safe accent). */
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,th:focus-visible,tr:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .bands{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 4px}
+  .band{display:flex;align-items:center;gap:6px;font-size:13px}
+  .dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+  th{cursor:pointer;user-select:none;background:var(--card);position:sticky;top:0}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:rgba(0,114,178,.06)}
+  .pill{padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;color:#fff}
+  .tablewrap{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+  svg{background:var(--card);border:1px solid var(--border);border-radius:10px}
+  .muted{color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="/">PertEMA</a>
+  <nav>
+    <a href="/" class="active" aria-current="page">Tool</a>
+    <a href="/methods">Methods</a>
+    <a href="/interpret">Interpret</a>
+    <a href="/model-card">Model card</a>
+    <a href="/benchmark">Benchmark</a>
+    <a href="/api">API</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+</header>
+<header class="hero">
+  <h1>PertEMA</h1>
+  <div class="tagline">A machine-learning reliability layer for single-cell perturbation predictors</div>
+  <div class="sub">Wrap any perturbation predictor and get a per-perturbation reliability score, a calibrated
+    error estimate, and a 90% conformal interval, so you know which predictions to act on.</div>
+  <div class="sub">The scorer is a gradient-boosted-tree estimator with isotonic calibration and split-conformal
+    intervals, trained only on prediction-time features (leakage-safe). It is a reliability layer, not a
+    predictor, and it does not rank biological importance.</div>
+  <div class="sub" style="opacity:.85">Gains are modest on noisy data. The honest out-of-fold reliability and
+    the measured accuracy ceiling are shown on every result.</div>
+  <div class="chips">
+    <span class="chip">gradient-boosted trees</span>
+    <span class="chip">isotonic calibration</span>
+    <span class="chip">split-conformal 90%</span>
+    <span class="chip">SHAP attribution</span>
+    <span class="chip">leakage-safe features</span>
+  </div>
+</header>
+<main>
+  <div class="card primary" style="margin-bottom:12px">
+    <b>Score your own predictions</b>
+    <p class="muted" style="margin:6px 0 8px">Upload or paste a long-format CSV of your predictor's outputs (perturbed_gene, gene, predicted_lfc, optional src_context/dst_context). <a href="/template">Download template</a>. Contexts must be Rest, Stim8hr, or Stim48hr.</p>
+    <div style="margin:6px 0 8px"><label for="csvFile" class="muted">Upload a CSV file:</label> <input id="csvFile" type="file" accept=".csv,text/csv" aria-label="upload a predictions CSV file"></div>
+    <textarea id="csv" style="width:100%;height:120px;font:12px monospace;border-radius:8px;padding:8px" placeholder="perturbed_gene,gene,predicted_lfc,src_context,dst_context&#10;IL2,IL2RA,0.83,Rest,Stim48hr&#10;IL2,IFNG,-0.21,Rest,Stim48hr"></textarea>
+    <div style="margin:8px 0"><span class="muted">default contexts if not in CSV:</span>
+      <select id="srcSel"><option>Rest</option><option>Stim8hr</option><option>Stim48hr</option></select> to <select id="dstSel"><option>Rest</option><option>Stim8hr</option><option selected>Stim48hr</option></select></div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><button id="scoreCsv">Score my predictions</button> <button id="loadExample" class="ghost">Load the built-in example (400 perturbations)</button> <button id="reportBtn" class="ghost">Download HTML report</button> <span id="spinner" class="spinner" hidden></span> <span id="ingestmsg" class="muted"></span></div>
+  </div>
+  <p class="muted" style="margin:0 0 18px">or try the built-in example: <button id="run" class="ghost">Run the bundled example</button>
+    <span>(training-derived, so its scores are in-sample and optimistic, a demo of the flow, not a quality claim)</span></p>
+
+  <div class="card" style="margin-bottom:18px">
+    <b>How it works</b> <span class="muted">(prediction-time only, nothing about the true error reaches the scorer)</span>
+    <div id="pipeline" role="img" aria-label="pipeline: your predictions CSV, featurize 64 dimensions prediction-time only, gradient-boosted tree (XGBoost 300 trees depth 6), isotonic calibration, split-conformal interval, reliability band and score" style="margin-top:10px"></div>
+  </div>
+
+  <div id="warn" class="warn" hidden></div>
+  <div id="errbox" class="errbox" hidden></div>
+  <div class="row">
+    <div class="card integrity">
+      <b>Model integrity</b>
+      <div id="integrity"></div>
+    </div>
+    <div class="card" style="flex:2;min-width:320px">
+      <b>Reliability bands</b> <span class="muted">(labeled, never color alone)</span>
+      <div class="bands">
+        <div class="band"><span class="dot" style="background:var(--high)"></span>high</div>
+        <div class="band"><span class="dot" style="background:var(--moderate)"></span>moderate</div>
+        <div class="band"><span class="dot" style="background:var(--low)"></span>low</div>
+        <div class="band"><span class="dot" style="background:var(--verylow)"></span>very-low</div>
+      </div>
+      <div id="dist" role="img" aria-label="reliability band distribution bar chart"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="card" style="flex:2;min-width:340px">
+      <b>Risk-coverage</b> <span class="muted">(mean predicted error of the kept subset, most reliable first)</span>
+      <div id="rc" role="img" aria-label="risk-coverage curve: mean error as the least-reliable predictions are dropped"></div>
+    </div>
+    <div class="card" style="flex:1;min-width:260px">
+      <b>Calibration</b> <span class="muted">(reliability diagram)</span>
+      <div id="reliability" role="img" aria-label="reliability diagram: predicted calibrated error versus realized error with a y equals x reference line"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:18px">
+    <b>Context-transfer difficulty</b> <span class="muted">(the primary contribution: which context transfers are hard)</span>
+    <div id="heatmap" role="img" aria-label="context-transfer difficulty matrix, trained-in rows by predicted-in columns" style="margin-top:10px"></div>
+  </div>
+  <div class="card" style="margin-bottom:18px">
+    <b>Triage</b> <span class="muted">(keep the most reliable predictions, drop the rest)</span>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap">
+      <label for="covSlider" class="muted">coverage</label>
+      <input id="covSlider" type="range" min="1" max="100" value="100" step="1" style="flex:1;min-width:200px" aria-label="coverage percent to retain">
+      <span id="covPct" style="width:44px">100%</span>
+      <button id="exportRetained" class="ghost">Export retained (CSV)</button>
+    </div>
+    <div id="triageInfo" class="muted" style="margin-top:6px"></div>
+  </div>
+  <div class="card" style="margin-bottom:18px">
+    <b>Worked example: accept or abstain on a validation shortlist</b>
+    <span class="muted">(retrospective, held-out donor truth, from the bundled Gladstone CD4 data)</span>
+    <p class="muted" style="margin:8px 0 12px">A wet lab validates a fixed shortlist (top 10 percent of predictions). Which shortlist is
+      more enriched for perturbations whose true destination-context effect is reproducible across donors? We compare the default
+      effect-magnitude shortlist (accept the largest predicted effects) against the PertEMA-reliability shortlist (abstain on the
+      least-reliable predictions), scoring each against cross-donor reproducibility of the true effect as a held-out validation
+      target. This is retrospective and uses held-out donor truth, not a prospective screen.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:230px;border:1px solid var(--border);border-radius:8px;padding:12px 14px;background:var(--bg)">
+        <div style="font-weight:620">Before: effect-magnitude default</div>
+        <div class="muted" style="font-size:12.5px;margin:2px 0 8px">accept the largest predicted effects</div>
+        <div style="font-size:24px;font-weight:700;color:var(--verylow)">-0.014</div>
+        <div class="muted" style="font-size:12.5px">reproducibility uplift vs no selection. Magnitude anti-selects reproducibility.</div>
+        <div style="height:10px;margin-top:8px;background:var(--card);border-radius:3px;position:relative">
+          <div style="position:absolute;right:50%;height:10px;width:18%;background:var(--verylow);border-radius:3px"></div>
+          <div style="position:absolute;left:50%;top:-3px;height:16px;width:1px;background:var(--border)"></div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:230px;border:2px solid var(--accent);border-radius:8px;padding:12px 14px;background:var(--bg)">
+        <div style="font-weight:620">After: PertEMA reliability</div>
+        <div class="muted" style="font-size:12.5px;margin:2px 0 8px">abstain on the least-reliable predictions</div>
+        <div style="font-size:24px;font-weight:700;color:var(--moderate)">+0.035</div>
+        <div class="muted" style="font-size:12.5px">reproducibility uplift vs no selection. 95 percent CI [+0.009, +0.067], positive in 99 percent of bootstraps.</div>
+        <div style="height:10px;margin-top:8px;background:var(--card);border-radius:3px;position:relative">
+          <div style="position:absolute;left:50%;height:10px;width:44%;background:var(--moderate);border-radius:3px"></div>
+          <div style="position:absolute;left:50%;top:-3px;height:16px;width:1px;background:var(--border)"></div>
+        </div>
+      </div>
+    </div>
+    <p style="margin:12px 0 4px"><b>Payoff:</b> on this destination (Stim48hr, donor transfer) the reliability shortlist is
+      <b>+0.049</b> more reproducible than the effect-magnitude default (positive in 99.5 percent of bootstraps), and +0.049 to
+      +0.063 across the two donor-transfer destinations.</p>
+    <p class="muted" style="margin:4px 0 6px">Honest scope: the defensible claim is relative. Magnitude actively anti-selects
+      reproducibility, so reliability yields the safer shortlist. Reliability's absolute enrichment is marginal (threshold-free
+      Spearman +0.014, p 0.59 on Stim48hr, at chance), and the gain is small and bounded by the accuracy ceiling. This does not
+      identify biologically important genes.</p>
+    <div class="muted" style="font-size:12px;border-top:1px solid var(--border);padding-top:8px;margin-top:6px">
+      model v0.1.0 | calibration coverage 0.900 (target 0.90) | accuracy ceiling Pearson r 0.73 on hit genes, 0.11 on all genes |
+      source: results/utility/reproducibility_uplift.csv (bootstrap B=2000, top 10 percent, n=1563)
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+    <b style="font-weight:620">Per-perturbation results</b>
+    <span class="muted">click a row to see why the model scored it</span>
+    <button id="dl" class="ghost" style="margin-left:auto" disabled>Download results (CSV)</button>
+  </div>
+  <div class="tablewrap"><table id="tbl" aria-label="per-perturbation reliability results, sortable by column"><thead></thead><tbody></tbody></table></div>
+  <div id="shapPanel" class="card" style="margin-top:14px" hidden></div>
+  <p class="muted" style="margin-top:14px">PertEMA is a reliability estimator, not a prediction-accuracy leaderboard. See the
+    open reliability benchmark at <a href="/benchmark">/benchmark</a> and the methods for the honest scope.</p>
+</main>
+<footer class="site-footer">
+  <span class="ver">model v0.1.0</span>
+  <span>Reliability layer, not a predictor. SHAP attribution explains the estimator, not biological importance.</span>
+  <a href="/methods">Methods</a>
+  <a href="/model-card">Model card</a>
+  <a href="/api">API</a>
+</footer>
+<script>
+const BANDCOLOR={high:'#0072B2',moderate:'#009E73',low:'#E69F00','very-low':'#D55E00'};
+let rows=[];
+// P0-5: the ceiling values are Pearson r (higher is better), not a bare number. The frozen provenance key
+// is misnamed measured_accuracy_ceiling_1minus_pearson but stores Pearson r; we label it correctly here.
+function integrityHTML(d,extra){
+  const c=d.accuracy_ceiling_1minus_pearson;
+  return kv('model version',d.model_version)
+    +kv('estimator','gradient-boosted tree (xgboost)')
+    +kv('calibration coverage',d.calibration_coverage.toFixed(3)+' (target 0.90)')
+    +kv('accuracy ceiling','Pearson r = '+(+c.hit_genes).toFixed(2)+' on hit genes, '+(+c.all_genes).toFixed(2)+' on all genes')
+    +'<div class="kv"><span></span><span>the best any predictor could reach given cross-donor replicate noise</span></div>'
+    +(extra||'');
+}
+async function run(){
+  clearError(); setBusy(true);
+  try{
+    const r=await fetch('/example');
+    if(!r.ok){showError('could not load the bundled example ('+r.status+')');return;}
+    const d=await r.json();
+    document.getElementById('warn').hidden=false;
+    document.getElementById('warn').textContent='Note: '+d.in_sample_warning;
+    document.getElementById('integrity').innerHTML=integrityHTML(d);
+    rows=d.results.map((x,i)=>{const ex=(d.explanations||[])[i],dr=ex&&ex.top_drivers&&ex.top_drivers[0];
+      const nb=(d.neighbors||{})[d.genes[i]]||[];
+      return {gene:d.genes[i],reliability:x.reliability,error:x.calibrated_error,band:x.band,
+        lo:x.conformal_interval[0],hi:x.conformal_interval[1],
+        why:dr?dr.group.replace(/_/g,' ')+' ('+dr.direction+')':'',neighbors:nb.slice(0,4).join(', '),
+        expl:ex||null,nbList:nb};});
+    drawDist(); drawRC(); drawTable(); updateTriage(); document.getElementById('dl').disabled=false;
+    if(rows.length){openShap(0,true);}
+  }catch(e){showError(''+e);}
+  finally{setBusy(false);}
+}
+function kv(k,v){return `<div class="kv"><span>${k}</span><span>${v}</span></div>`}
+function drawDist(){
+  const counts={high:0,moderate:0,low:0,'very-low':0}; rows.forEach(r=>counts[r.band]++);
+  const max=Math.max(...Object.values(counts));
+  let h='<div style="margin-top:10px">';
+  for(const b of ['high','moderate','low','very-low']){
+    const w=Math.round(counts[b]/max*100);
+    h+=`<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="width:66px;font-size:12.5px">${b}</span>
+        <div style="height:14px;width:${w}%;background:${BANDCOLOR[b]};border-radius:3px"></div>
+        <span class="muted">${counts[b]}</span></div>`;
+  }
+  document.getElementById('dist').innerHTML=h+'</div>';
+}
+function drawRC(){
+  const s=[...rows].sort((a,b)=>b.reliability-a.reliability); const n=s.length;
+  let cum=0; const pts=[]; for(let i=0;i<n;i++){cum+=s[i].error; pts.push([(i+1)/n, cum/(i+1)]);}
+  const W=760,H=200,padL=52,padR=20,padT=20,padB=34;
+  // P0-3: derive the y-range from the data with padding rather than a hardcoded band that clips the curve.
+  const ev=pts.map(p=>p[1]); let lo=Math.min(...ev), hi=Math.max(...ev);
+  if(!isFinite(lo)||!isFinite(hi)){lo=0;hi=1;}
+  const span=(hi-lo)||0.02, mpad=span*0.12; lo=Math.max(0,lo-mpad); hi=hi+mpad;
+  const xs=v=>padL+v*(W-padL-padR), ys=v=>H-padB-(v-lo)/(hi-lo)*(H-padT-padB);
+  let path='M'+pts.map(p=>xs(p[0]).toFixed(1)+','+ys(p[1]).toFixed(1)).join(' L');
+  // 3 labelled y ticks across the data range, and coverage ticks on x.
+  const yt=[lo,(lo+hi)/2,hi], xt=[0,0.5,1];
+  const yticks=yt.map(v=>`<line x1="${padL}" y1="${ys(v).toFixed(1)}" x2="${W-padR}" y2="${ys(v).toFixed(1)}" stroke="var(--border)" stroke-width="1"/>
+    <text x="${padL-6}" y="${(ys(v)+3).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)">${v.toFixed(3)}</text>`).join('');
+  const xticks=xt.map(v=>`<text x="${xs(v).toFixed(1)}" y="${H-padB+16}" text-anchor="middle" font-size="10" fill="var(--muted)">${Math.round(v*100)}%</text>`).join('');
+  document.getElementById('rc').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">
+    ${yticks}
+    <path d="${path}" fill="none" stroke="#0072B2" stroke-width="2"/>
+    <text x="${padL}" y="12" font-size="11" fill="var(--muted)">risk (mean 1-Pearson error)</text>
+    <text x="${(padL+W-padR)/2}" y="${H-4}" text-anchor="middle" font-size="11" fill="var(--muted)">coverage (fraction kept, most reliable first) -></text>
+    ${xticks}</svg>`;
+}
+// P1-5: static held-out reliability diagram. No bin points are shipped, so we draw the y=x reference and the
+// frozen calibration summary rather than fabricating points.
+function drawReliability(){
+  const S=260,pad=34;
+  const ax=v=>pad+v*(S-2*pad), ay=v=>S-pad-v*(S-2*pad);
+  document.getElementById('reliability').innerHTML=`<svg viewBox="0 0 ${S} ${S}" width="100%" style="max-width:300px">
+    <line x1="${ax(0)}" y1="${ay(0)}" x2="${ax(0)}" y2="${ay(1)}" stroke="var(--border)"/>
+    <line x1="${ax(0)}" y1="${ay(0)}" x2="${ax(1)}" y2="${ay(0)}" stroke="var(--border)"/>
+    <line x1="${ax(0)}" y1="${ay(0)}" x2="${ax(1)}" y2="${ay(1)}" stroke="#0072B2" stroke-width="2" stroke-dasharray="5 4"/>
+    <text x="${ax(0.98)}" y="${ay(0.92)}" text-anchor="end" font-size="10" fill="var(--muted)">y = x</text>
+    <text x="${(ax(0)+ax(1))/2}" y="${S-6}" text-anchor="middle" font-size="10" fill="var(--muted)">predicted calibrated error</text>
+    <text x="12" y="${(ay(0)+ay(1))/2}" text-anchor="middle" font-size="10" fill="var(--muted)" transform="rotate(-90 12 ${((ay(0)+ay(1))/2).toFixed(1)})">realized error</text>
+  </svg><div class="muted" style="margin-top:4px">held-out, ECE 0.003, coverage 0.900 at 0.90 target</div>`;
+}
+// P1-2: inline SVG pipeline diagram (responsive via viewBox + width:100%).
+function drawPipeline(){
+  const steps=['your predictions (CSV)','featurize (64-d, prediction-time only)','gradient-boosted tree (XGBoost, 300 trees, depth 6)','isotonic calibration','split-conformal interval','reliability band + score'];
+  const bw=200,bh=64,gap=44,pad=12,cols=steps.length;
+  const W=pad*2+cols*bw+(cols-1)*gap,H=bh+40;
+  const fill=['#e6f2f9','#e6f2f9','#d7ebf6','#e6f5ef','#fdf1de','#fdf1de'];
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  for(let i=0;i<cols;i++){
+    const x=pad+i*(bw+gap), y=20;
+    s+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="8" fill="${fill[i]}" stroke="#0072B2" stroke-width="1"/>`;
+    const words=steps[i].split(' '); const lines=[]; let cur='';
+    words.forEach(w=>{if((cur+' '+w).trim().length>26){lines.push(cur.trim());cur=w;}else cur+=' '+w;}); if(cur.trim())lines.push(cur.trim());
+    const ly=y+bh/2-(lines.length-1)*7+4;
+    lines.forEach((ln,k)=>{s+=`<text x="${x+bw/2}" y="${ly+k*14}" text-anchor="middle" font-size="11" fill="#153">${ln.replace(/&/g,'&amp;')}</text>`;});
+    if(i<cols-1){const ax=x+bw+gap/2;s+=`<path d="M ${x+bw} ${y+bh/2} L ${x+bw+gap} ${y+bh/2}" stroke="#0072B2" stroke-width="2" fill="none"/>
+      <path d="M ${x+bw+gap-8} ${y+bh/2-5} L ${x+bw+gap} ${y+bh/2} L ${x+bw+gap-8} ${y+bh/2+5}" fill="#0072B2"/>`;}
+  }
+  s+='</svg>';
+  document.getElementById('pipeline').innerHTML=s;
+}
+function drawTable(){
+  const cols=[['gene','gene'],['reliability','reliability'],['error','calibrated error'],['band','band'],['lo','interval lo'],['hi','interval hi'],['why','top driver'],['neighbors','co-expr neighbors']];
+  document.querySelector('#tbl thead').innerHTML='<tr>'+cols.map(c=>`<th data-k="${c[0]}" tabindex="0" role="button" aria-label="sort by ${c[1]}">${c[1]}</th>`).join('')+'</tr>';
+  render();
+  const sortBy=k=>{rows.sort((a,b)=>typeof a[k]==='number'?b[k]-a[k]:String(a[k]).localeCompare(b[k])); render();};
+  document.querySelectorAll('#tbl th').forEach(th=>{th.onclick=()=>sortBy(th.dataset.k);
+    th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sortBy(th.dataset.k);}};});
+}
+function render(){
+  document.querySelector('#tbl tbody').innerHTML=rows.map((r,i)=>`<tr tabindex="0" data-i="${i}" aria-label="explain ${r.gene}">
+    <td>${r.gene}</td><td>${r.reliability.toFixed(3)}</td><td>${r.error.toFixed(3)}</td>
+    <td><span class="pill" style="background:${BANDCOLOR[r.band]}">${r.band}</span></td>
+    <td>${r.lo.toFixed(3)}</td><td>${r.hi.toFixed(3)}</td>
+    <td class="muted" style="font-size:.82rem">${r.why||''}</td>
+    <td class="muted" style="font-size:.82rem">${r.neighbors||''}</td></tr>`).join('');
+  document.querySelectorAll('#tbl tbody tr').forEach(tr=>{
+    const open=()=>openShap(+tr.dataset.i);
+    tr.onclick=open;
+    tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
+  });
+}
+// P1-3: grouped SHAP contributions toward predicted error for one prediction.
+const SHAP_ORDER=['predicted_magnitude','source_context_state','destination_context_state','context_indicators','coexpression_embedding','training_set_similarity'];
+function openShap(i, noScroll){
+  const r=rows[i], ex=r&&r.expl, panel=document.getElementById('shapPanel');
+  panel.hidden=false;
+  const head=`<b>Why the model scored this prediction</b> <span class="muted">(grouped SHAP contributions toward predicted error). Attribution explains the estimator, not biological importance.</span>`;
+  if(!ex){panel.innerHTML=head+`<p class="muted" style="margin-top:8px">No attribution is available for this prediction.</p>`;if(!noScroll)panel.scrollIntoView({behavior:'smooth',block:'nearest'});return;}
+  const g=ex.group_contributions_toward_error||{};
+  const entries=SHAP_ORDER.filter(k=>k in g).map(k=>[k,g[k]]);
+  const maxAbs=Math.max(1e-6,...entries.map(e=>Math.abs(e[1])));
+  const W=760,rowH=30,padTop=8,axisX=300,barMax=200;
+  const H=padTop+entries.length*rowH+8;
+  let bars='';
+  entries.forEach((e,k)=>{
+    const [name,val]=e, y=padTop+k*rowH+rowH/2;
+    const w=Math.abs(val)/maxAbs*barMax, pos=val>0;
+    const x=pos?axisX:axisX-w, col=pos?'#D55E00':'#0072B2';
+    bars+=`<text x="${axisX-barMax-8}" y="${y+3}" text-anchor="start" font-size="11" fill="var(--fg)">${name.replace(/_/g,' ')}</text>`;
+    bars+=`<rect x="${x.toFixed(1)}" y="${(y-9).toFixed(1)}" width="${Math.max(w,1).toFixed(1)}" height="18" fill="${col}" rx="2"/>`;
+    bars+=`<text x="${(pos?axisX+w+4:axisX-w-4).toFixed(1)}" y="${y+3}" text-anchor="${pos?'start':'end'}" font-size="10" fill="var(--muted)">${val>=0?'+':''}${val.toFixed(3)}</text>`;
+  });
+  const svg=`<svg viewBox="0 0 ${W} ${H}" width="100%">
+    <line x1="${axisX}" y1="${padTop}" x2="${axisX}" y2="${H-8}" stroke="var(--border)"/>
+    ${bars}
+    <text x="${axisX+barMax}" y="${H-1}" text-anchor="end" font-size="10" fill="#D55E00">less reliable -></text>
+    <text x="${axisX-barMax}" y="${H-1}" text-anchor="start" font-size="10" fill="#0072B2">&lt;- more reliable</text>
+  </svg>`;
+  const nb=(r.nbList&&r.nbList.length)?r.nbList.slice(0,8).join(', '):'not available for this row';
+  panel.innerHTML=head
+    +`<div style="margin-top:10px">${svg}</div>`
+    +`<div class="kv" style="max-width:420px"><span>base value (mean predicted error)</span><span>${(+ex.base_error).toFixed(3)}</span></div>`
+    +`<div class="muted" style="margin-top:6px"><b>co-expression neighbors:</b> ${nb}</div>`;
+  if(!noScroll)panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function download(){
+  const h='gene,reliability,calibrated_error,band,conformal_lo,conformal_hi\n';
+  const b=rows.map(r=>[r.gene,r.reliability,r.error,r.band,r.lo,r.hi].join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([h+b],{type:'text/csv'}));
+  a.download='pertema_reliability.csv'; a.click();
+}
+function setBusy(on){
+  document.getElementById('spinner').hidden=!on;
+  ['scoreCsv','loadExample','reportBtn','run'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=on;});
+}
+function showError(m){const b=document.getElementById('errbox');b.hidden=false;b.textContent='Error: '+m;b.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function clearError(){document.getElementById('errbox').hidden=true;}
+async function runIngest(){
+  const csv=document.getElementById('csv').value.trim();
+  const msg=document.getElementById('ingestmsg');
+  clearError();
+  if(!csv){showError('paste or upload a CSV first, or press Load the built-in example.');return;}
+  msg.textContent='scoring...'; setBusy(true);
+  try{
+    const r=await fetch('/ingest_score',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({csv,src_default:document.getElementById('srcSel').value,dst_default:document.getElementById('dstSel').value})});
+    if(!r.ok){let e={};try{e=await r.json();}catch(_){} msg.textContent=''; showError(e.detail||('request failed ('+r.status+')')); return;}
+    const d=await r.json();
+    const fr=d.featurize_report;
+    msg.textContent=`scored ${d.results.length} perturbations, mapped ${(fr.mapped_fraction*100).toFixed(0)}% of genes`;
+    document.getElementById('warn').hidden=false;
+    document.getElementById('warn').textContent='Note: '+d.note;
+    document.getElementById('integrity').innerHTML=integrityHTML(d,kv('mapped fraction',fr.mapped_fraction));
+    rows=d.results.map((x,i)=>{const ex=(d.explanations||[])[i],dr=ex&&ex.top_drivers&&ex.top_drivers[0];
+      const nb=(d.neighbors||{})[d.genes[i]]||[];
+      return {gene:d.genes[i],reliability:x.reliability,error:x.calibrated_error,band:x.band,lo:x.conformal_interval[0],hi:x.conformal_interval[1],
+        why:dr?dr.group.replace(/_/g,' ')+' ('+dr.direction+')':'',neighbors:nb.slice(0,4).join(', '),
+        expl:ex||null,nbList:nb};});
+    drawDist(); drawRC(); drawTable(); updateTriage(); document.getElementById('dl').disabled=false;
+    if(rows.length){openShap(0,true);}
+  }catch(e){msg.textContent=''; showError(''+e);}
+  finally{setBusy(false);}
+}
+function retained(){
+  const c=+document.getElementById('covSlider').value/100;
+  const k=Math.max(1,Math.round(c*rows.length));
+  const s=[...rows].sort((a,b)=>b.reliability-a.reliability).slice(0,k);
+  return s;
+}
+function updateTriage(){
+  if(!rows.length)return;
+  const c=+document.getElementById('covSlider').value;
+  document.getElementById('covPct').textContent=c+'%';
+  const s=retained();
+  const me=s.reduce((a,r)=>a+r.error,0)/s.length;
+  const meAll=rows.reduce((a,r)=>a+r.error,0)/rows.length;
+  document.getElementById('triageInfo').innerHTML=`retained <b>${s.length}</b> of ${rows.length} predictions, mean predicted error ${me.toFixed(3)} (vs ${meAll.toFixed(3)} for all). Lower is better.`;
+}
+function exportRetained(){
+  const s=retained();
+  const h='gene,reliability,calibrated_error,band,conformal_lo,conformal_hi\n';
+  const b=s.map(r=>[r.gene,r.reliability,r.error,r.band,r.lo,r.hi].join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([h+b],{type:'text/csv'}));
+  a.download='pertema_retained.csv'; a.click();
+}
+document.getElementById('covSlider').oninput=updateTriage;
+document.getElementById('exportRetained').onclick=exportRetained;
+async function downloadReport(){
+  const csv=document.getElementById('csv').value.trim();
+  if(!csv){document.getElementById('ingestmsg').textContent='paste a CSV first';return;}
+  document.getElementById('ingestmsg').textContent='building report...';
+  try{
+    const r=await fetch('/report',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({csv,src_default:document.getElementById('srcSel').value,dst_default:document.getElementById('dstSel').value})});
+    if(!r.ok){document.getElementById('ingestmsg').textContent='report failed: '+(await r.text()).slice(0,120);return;}
+    const html=await r.text();
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+    a.download='pertema_report.html'; a.click();
+    document.getElementById('ingestmsg').textContent='report downloaded';
+  }catch(e){document.getElementById('ingestmsg').textContent='report error: '+e;}
+}
+document.getElementById('reportBtn').onclick=downloadReport;
+async function loadExample(){
+  try{const r=await fetch('/example.csv'); const t=await r.text();
+    document.getElementById('csv').value=t.split('\n').filter(l=>l&&!l.startsWith('#')).join('\n');
+    document.getElementById('ingestmsg').textContent='loaded the 400-perturbation example, now press Score my predictions';
+  }catch(e){document.getElementById('ingestmsg').textContent='could not load example';}
+}
+document.getElementById('loadExample').onclick=loadExample;
+// Read a chosen CSV file into the textarea via FileReader, so the paste path and the upload path both work.
+function readCsvFile(ev){
+  const f=ev.target.files&&ev.target.files[0]; if(!f)return;
+  const reader=new FileReader();
+  reader.onload=()=>{document.getElementById('csv').value=String(reader.result);
+    document.getElementById('ingestmsg').textContent='loaded '+f.name+', press Score my predictions';};
+  reader.onerror=()=>{showError('could not read the file '+f.name);};
+  reader.readAsText(f);
+}
+document.getElementById('csvFile').onchange=readCsvFile;
+// P2-7: perceptually ordered sequential ramp (ColorBrewer YlOrRd, colorblind-safe) from easier to harder.
+const SEQ=[[255,255,204],[254,217,118],[253,141,60],[240,59,32],[189,0,38]];
+function seqColor(t){t=Math.max(0,Math.min(1,t));const p=t*(SEQ.length-1),i=Math.floor(p),f=p-i,a=SEQ[i],b=SEQ[Math.min(i+1,SEQ.length-1)];
+  return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;}
+async function drawHeatmap(){
+  try{const r=await fetch('/transfer_heatmap'); const d=await r.json();
+    const C=d.conditions, M=d.matrix; const vals=M.flat(); const lo=Math.min(...vals), hi=Math.max(...vals);
+    const cell=52, pad=64; const gridW=pad+C.length*cell+10, cbW=90, W=gridW+cbW, H=pad+C.length*cell+10;
+    let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:520px">`;
+    for(let i=0;i<C.length;i++)for(let j=0;j<C.length;j++){
+      const v=M[i][j], tnorm=(v-lo)/(hi-lo+1e-9), col=seqColor(tnorm);
+      s+=`<rect x="${pad+j*cell}" y="${pad+i*cell}" width="${cell-2}" height="${cell-2}" fill="${col}" stroke="#ccc"/>`;
+      s+=`<text x="${pad+j*cell+cell/2-1}" y="${pad+i*cell+cell/2+3}" font-size="11" text-anchor="middle" fill="${tnorm>0.55?'#fff':'#222'}">${v.toFixed(2)}</text>`;
+    }
+    for(let j=0;j<C.length;j++)s+=`<text x="${pad+j*cell+cell/2-1}" y="${pad-6}" font-size="10" text-anchor="middle" fill="var(--fg)">${C[j]}</text>`;
+    for(let i=0;i<C.length;i++)s+=`<text x="${pad-6}" y="${pad+i*cell+cell/2+3}" font-size="10" text-anchor="end" fill="var(--fg)">${C[i]}</text>`;
+    s+=`<text x="${pad}" y="14" font-size="10" fill="var(--muted)">trained-in (rows) -> predicted-in (cols)</text>`;
+    // labelled colorbar (easier -> harder)
+    const barX=gridW+8, barY=pad, barH=C.length*cell-2, barW=16, N=24;
+    for(let k=0;k<N;k++){const t=k/(N-1);s+=`<rect x="${barX}" y="${(barY+barH*(1-(k+1)/N)).toFixed(1)}" width="${barW}" height="${(barH/N+0.6).toFixed(1)}" fill="${seqColor(t)}"/>`;}
+    s+=`<rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" fill="none" stroke="#ccc"/>`;
+    s+=`<text x="${barX+barW+4}" y="${barY+8}" font-size="9" fill="var(--muted)">harder</text>`;
+    s+=`<text x="${barX+barW+4}" y="${barY+barH}" font-size="9" fill="var(--muted)">easier</text>`;
+    s+=`</svg>`;
+    document.getElementById('heatmap').innerHTML=s+`<div class="muted" style="margin-top:4px">${d.note}</div>`;
+  }catch(e){document.getElementById('heatmap').innerHTML='<span class="muted">heatmap unavailable</span>';}
+}
+drawPipeline(); drawReliability(); drawHeatmap();
+document.getElementById('run').onclick=run;
+document.getElementById('scoreCsv').onclick=runIngest;
+document.getElementById('dl').onclick=download;
+</script>
+</body>
+</html>

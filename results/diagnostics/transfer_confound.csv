@@ -1,0 +1,4 @@
+embedding,feature_transfer_diag_mean,feature_transfer_diag_max,strongest_within_dataset,strongest_within_value,weight_transfer_offdiag_mean,weight_transfer_offdiag_max,weights_of_strongest_transfer_to_others_mean
+gene2vec,-0.001,0.129,replogle,0.129,0.004,0.27,0.029
+geneformer,0.041,0.31,replogle,0.31,0.019,0.229,-0.049
+scgpt,0.079,0.34,replogle,0.34,-0.023,0.107,0.062

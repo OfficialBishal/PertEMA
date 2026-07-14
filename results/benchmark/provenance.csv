@@ -1,0 +1,14 @@
+predictor,provenance
+mean_condition,CLEAN
+mean_global,CLEAN
+knn_coexpr_k25,CLEAN
+ridge_embed,CLEAN
+mlp_decoder,CLEAN
+no_change,CLEAN
+prescribe_gears_backbone,UNKNOWN-OVERLAP
+geneformer_ridge,UNKNOWN-OVERLAP
+geneformer_knn,UNKNOWN-OVERLAP
+scgpt_ridge,UNKNOWN-OVERLAP
+scgpt_knn,UNKNOWN-OVERLAP
+gene2vec_ridge,UNKNOWN-OVERLAP
+gene2vec_knn,UNKNOWN-OVERLAP

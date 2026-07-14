@@ -1,0 +1,2 @@
+dataset,n,p,mean_offdiag_pearson,mean_offdiag_spearman,N_eff,best_fixed,err_best_fixed,err_oracle,oracle_headroom,s_between,s_within
+norman,102,3,0.9113657665142777,0.8485881712100394,1.1243460870502884,mean_global,0.4880600400220335,0.4655530293003406,0.02250701072169292,0.04873566444849052,0.3392149114952722

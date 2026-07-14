@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PertEMA - Interpret</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230072B2'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23fff'/%3E%3Crect x='3' y='6.5' width='7.5' height='2' fill='%23A7DFF0'/%3E%3Crect x='3' y='10' width='5' height='2' fill='%23E69F00'/%3E%3C/svg%3E">
+<style>
+  :root{--bg:#fbfbfd;--fg:#1a1a1f;--muted:#666;--line:#e2e2e8;--accent:#0072B2;}
+  body{margin:0;font:15.5px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);background:var(--bg)}
+  main{max-width:820px;margin:0 auto;padding:32px 28px 60px}
+  h1{font-size:24px;margin:0 0 6px} h2{font-size:18px;margin:30px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  a{color:var(--accent)} code{background:#f2f2f6;padding:1px 5px;border-radius:4px;font-size:13px}
+  .muted{color:var(--muted)} .neg{color:#8a3b12} ul{padding-left:22px} li{margin:5px 0}
+  .box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:12px 0}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;margin:8px 0}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f6f6f9;font-weight:620}
+  .dot{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:7px}
+  .bandname{font-weight:620;white-space:nowrap}
+  .rng{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .key{font-size:12.5px;color:var(--muted);margin-top:6px}
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a6270; --card:#f6f8fa; --border:#e3e7ec; --accent:#0072B2;
+    --band-high:#0072B2; --band-moderate:#009E73; --band-low:#E69F00; --band-verylow:#D55E00;
+  }
+  body{ background:var(--bg); color:var(--fg); }
+  .site-nav{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:1rem;
+    padding:.6rem 1rem; background:var(--card); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .site-nav .brand{ font-weight:700; color:var(--accent); text-decoration:none; font-size:1.05rem; letter-spacing:.02em; }
+  .site-nav nav{ display:flex; gap:.9rem; flex-wrap:wrap; margin-left:auto; }
+  .site-nav nav a{ color:var(--fg); text-decoration:none; font-size:.92rem; opacity:.85; }
+  .site-nav nav a:hover{ opacity:1; }
+  .site-nav nav a.active{ color:var(--accent); font-weight:600; opacity:1; border-bottom:2px solid var(--accent); }
+  .site-footer{ margin-top:2.5rem; padding:1rem; border-top:1px solid var(--border); color:var(--muted);
+    font-size:.85rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+  .site-footer .ver{ font-family:ui-monospace,Menlo,Consolas,monospace; background:var(--card);
+    border:1px solid var(--border); border-radius:4px; padding:.1rem .4rem; }
+</style>
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="/">PertEMA</a>
+  <nav>
+    <a href="/">Tool</a>
+    <a href="/methods">Methods</a>
+    <a href="/interpret" class="active" aria-current="page">Interpret</a>
+    <a href="/model-card">Model card</a>
+    <a href="/benchmark">Benchmark</a>
+    <a href="/api">API</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+</header>
+<main>
+  <h1>Interpret your results</h1>
+  <p>PertEMA scores which of a predictor's per-perturbation outputs to trust. This page explains what each
+     number on the results table means, so you can act on it without over-reading it. Read the honest scope at
+     the bottom before you draw conclusions.</p>
+
+  <h2>The reliability score and the calibrated error</h2>
+  <p>Each perturbation gets a <b>calibrated error</b>, an estimate of that prediction's error measured as
+     <code>1 - Pearson</code> between the predicted and the true effect (so lower is better, 0 is perfect and
+     1 is uncorrelated). The <b>reliability</b> score is just the negative of the calibrated error, so a higher
+     reliability means a lower expected error. Sort the table by reliability to put the predictions most worth
+     acting on at the top. The estimate is produced from prediction-time features only, so it never sees the
+     true effect of the perturbation it is scoring.</p>
+
+  <h2>The four reliability bands</h2>
+  <p>The calibrated error is bucketed into four fixed, documented bands. The thresholds are constant across
+     runs so a band means the same thing every time. Each band is always shown with its text label, never by
+     color alone. The colors are from the Okabe-Ito colorblind-safe palette.</p>
+  <table>
+    <thead><tr><th>Band</th><th>Calibrated error (1 - Pearson)</th><th>What it means</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="bandname"><span class="dot" style="background:var(--band-high)"></span>high</td>
+        <td class="rng">below 0.80</td>
+        <td>Among the more trustworthy predictions on this noisy data.</td>
+        <td>Reasonable to prioritize, still not a guarantee.</td>
+      </tr>
+      <tr>
+        <td class="bandname"><span class="dot" style="background:var(--band-moderate)"></span>moderate</td>
+        <td class="rng">0.80 to 0.88</td>
+        <td>Usable with caution.</td>
+        <td>Keep, but corroborate before acting.</td>
+      </tr>
+      <tr>
+        <td class="bandname"><span class="dot" style="background:var(--band-low)"></span>low</td>
+        <td class="rng">0.88 to 0.94</td>
+        <td>Treat with skepticism.</td>
+        <td>Do not rely on it alone.</td>
+      </tr>
+      <tr>
+        <td class="bandname"><span class="dot" style="background:var(--band-verylow)"></span>very-low</td>
+        <td class="rng">0.94 and above</td>
+        <td>Likely unreliable.</td>
+        <td>Deprioritize.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="key">Note the scale: even a high-band prediction here carries a calibrated error below 0.80 in
+     <code>1 - Pearson</code>, which is far from perfect. The bands rank predictions relative to each other on
+     noisy data. They do not promise that a high-band prediction is accurate in an absolute sense.</p>
+
+  <h2>Calibration coverage and what 0.90 means</h2>
+  <p>Calibration is checked on held-out data the shipped estimator did not train on. The reported
+     <b>coverage</b> is the fraction of held-out perturbations whose true error actually landed inside the
+     reported interval. The target is <code>0.90</code> and the measured empirical coverage is
+     <code>0.900</code>. So 0.90 is a frequency statement about the intervals as a set, roughly 90 out of every
+     100 intervals contain the true error, not a probability attached to any single prediction. The isotonic
+     recalibration that produces the calibrated error has a measured expected calibration error of about
+     <code>0.003</code>, meaning the predicted error levels line up closely with realized error on held-out
+     data.</p>
+
+  <h2>The conformal interval</h2>
+  <p>Every prediction carries a <b>conformal interval</b> <code>[lo, hi]</code> around its calibrated error.
+     It is a split-conformal band of fixed width (about <code>0.227</code> in <code>1 - Pearson</code> units,
+     with the lower bound clipped at 0) whose width was chosen on held-out data to reach the 0.90 coverage
+     described above. Read it as a plausible range for the realized error of that prediction, not as a tight
+     point estimate. A wide interval that sits high on the error scale is another signal to deprioritize.</p>
+
+  <h2 class="neg">Honest scope: read before concluding</h2>
+  <div class="box neg">
+    <ul>
+      <li>Reliability tells you <b>which predictions to trust, not which genes are important</b>. A high band
+          says the predictor's output for that perturbation is more likely to be right, not that the
+          perturbation is biologically meaningful. Those are different axes.</li>
+      <li><b>Gains are modest on noisy data.</b> The measured accuracy ceiling of the underlying predictions is
+          modest (the best achievable cross-donor <code>Pearson r</code> is about 0.73 on hit genes and only 0.11 on all genes, higher is better), so the
+          error is noise-dominated and the room for any reliability layer to help is limited.</li>
+      <li>The <b>bundled example is in-sample and optimistic.</b> It is a slice of the model's own training
+          data, so its scores flatter the method. Your own unseen predictions get honest out-of-sample
+          reliability, which is the number that matters.</li>
+      <li>PertEMA <b>never retrains on your ground truth.</b> If you supply true effects, they are used only to
+          report realized error back to you, never to refit the shipped estimator.</li>
+    </ul>
+  </div>
+  <p class="muted">For the method, the measured comparisons, and the negative results, see the
+     <a href="/methods">methods and honest scope</a> page and the open <a href="/benchmark">benchmark</a>.</p>
+</main>
+<footer class="site-footer">
+  <span class="ver">model v0.1.0</span>
+  <span>Reliability layer, not a predictor. SHAP attribution explains the estimator, not biological importance.</span>
+  <a href="/methods">Methods</a>
+  <a href="/model-card">Model card</a>
+  <a href="/api">API</a>
+</footer>
+</body>
+</html>

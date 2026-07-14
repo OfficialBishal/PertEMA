@@ -1,0 +1,5 @@
+dataset,rho,f_noise,errors_path,routing_verdict,mu_amp,sim_capture_exact
+Gladstone_CD4,0.9190009831445384,0.9718860163081178,results/error_correlation/per_perturbation_errors.csv,empirical NEGATIVE (D6),0.09329300161024141,-0.27002453245470787
+Replogle_K562,0.791885231065585,0.224806543456554,results/error_correlation/per_perturbation_errors_replogle.csv,empirical NEGATIVE (D6 Replogle),0.30570209984629637,-0.3430637031741135
+Norman_K562,0.9113657665142776,0.08724759703406,results/error_correlation/per_perturbation_errors_norman.csv,prediction (no routing test),0.21031418524981343,-0.5290258851064839
+Adamson_K562,0.462319303141568,0.0711233841824133,results/error_correlation/per_perturbation_errors_adamson.csv,prediction (no routing test),0.2803355981273199,0.2614994669876242

@@ -1,0 +1,2 @@
+dataset,n,mean_floor_sb,mean_r_AB,best_fixed_err,oracle_err,f_noise_shared,floor_kind
+Replogle_K562,213,0.11659062361672683,0.6684972843512165,0.5186264680025163,0.4863907168728645,0.22480654345655404,cell_split_half_technical

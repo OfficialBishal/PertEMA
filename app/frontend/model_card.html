@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PertEMA - Model card</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230072B2'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23fff'/%3E%3Crect x='3' y='6.5' width='7.5' height='2' fill='%23A7DFF0'/%3E%3Crect x='3' y='10' width='5' height='2' fill='%23E69F00'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a6270; --card:#f6f8fa; --border:#e3e7ec; --accent:#0072B2;
+    --band-high:#0072B2; --band-moderate:#009E73; --band-low:#E69F00; --band-verylow:#D55E00;
+  }
+  *{box-sizing:border-box}
+  body{ margin:0; background:var(--bg); color:var(--fg);
+        font:15.5px/1.62 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+  main{ max-width:860px; margin:0 auto; padding:26px 24px 40px; }
+  h1{ font-size:24px; margin:0 0 4px }
+  h2{ font-size:17px; margin:28px 0 8px; border-bottom:1px solid var(--border); padding-bottom:5px }
+  p{ margin:8px 0 }
+  a{ color:var(--accent) }
+  code{ background:var(--card); border:1px solid var(--border); padding:1px 5px; border-radius:4px; font-size:13px }
+  .muted{ color:var(--muted) }
+  .neg{ color:var(--band-verylow) }
+  .sub{ color:var(--muted); margin:0 0 6px }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 18px; margin:10px 0 }
+  dl{ display:grid; grid-template-columns:190px 1fr; gap:.3rem .9rem; margin:8px 0 }
+  dl dt{ color:var(--muted); font-size:.9rem }
+  dl dd{ margin:0 }
+  ul{ padding-left:20px } li{ margin:4px 0 }
+  .flag{ display:inline-block; font-size:12px; font-weight:600; padding:.1rem .5rem; border-radius:20px;
+         border:1px solid var(--band-moderate); color:var(--band-moderate) }
+  .tablewrap{ overflow-x:auto; border:1px solid var(--border); border-radius:10px; margin:10px 0 }
+  table{ border-collapse:collapse; width:100%; font-size:13.5px }
+  th,td{ text-align:left; padding:.4rem .6rem; border-bottom:1px solid var(--border); vertical-align:top }
+  th{ background:var(--card); font-weight:600; white-space:nowrap }
+  td code{ white-space:nowrap }
+  .safe{ color:var(--band-moderate); font-weight:600; font-size:12px }
+  .kv{ font-variant-numeric:tabular-nums }
+  .site-nav{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:1rem;
+    padding:.6rem 1rem; background:var(--card); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .site-nav .brand{ font-weight:700; color:var(--accent); text-decoration:none; font-size:1.05rem; letter-spacing:.02em; }
+  .site-nav nav{ display:flex; gap:.9rem; flex-wrap:wrap; margin-left:auto; }
+  .site-nav nav a{ color:var(--fg); text-decoration:none; font-size:.92rem; opacity:.85; }
+  .site-nav nav a:hover{ opacity:1; }
+  .site-nav nav a.active{ color:var(--accent); font-weight:600; opacity:1; border-bottom:2px solid var(--accent); }
+  .site-footer{ margin-top:2.5rem; padding:1rem; border-top:1px solid var(--border); color:var(--muted);
+    font-size:.85rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+  .site-footer .ver{ font-family:ui-monospace,Menlo,Consolas,monospace; background:var(--card);
+    border:1px solid var(--border); border-radius:4px; padding:.1rem .4rem; }
+</style>
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="/">PertEMA</a>
+  <nav>
+    <a href="/">Tool</a>
+    <a href="/methods">Methods</a>
+    <a href="/interpret">Interpret</a>
+    <a href="/model-card" class="active" aria-current="page">Model card</a>
+    <a href="/benchmark">Benchmark</a>
+    <a href="/api">API</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+</header>
+<main>
+  <h1>PertEMA model card</h1>
+  <p class="sub">A post-hoc, model-agnostic reliability estimator for single-cell perturbation predictors.
+     Version <span id="mv">0.1.0</span>. Provenance flag <span class="flag" id="pflag">CLEAN</span></p>
+
+  <h2>Model</h2>
+  <div class="card">
+    <dl>
+      <dt>Type</dt><dd>xgboost gradient-boosted tree (GBT)</dd>
+      <dt>Hyperparameters</dt><dd class="kv">n_estimators=300, max_depth=6, learning_rate=0.05</dd>
+      <dt>Post-processing</dt><dd>isotonic calibration, then a split-conformal interval</dd>
+      <dt>Version</dt><dd class="kv" id="mv2">0.1.0</dd>
+    </dl>
+  </div>
+
+  <h2>Training data</h2>
+  <div class="card">
+    <dl>
+      <dt>Source</dt><dd>Gladstone CD4 activation-transfer errors of the per-condition mean predictor, all folds</dd>
+      <dt>Training perturbations</dt><dd class="kv" id="ntrain">n = 64,024</dd>
+      <dt>Data hash (sha256[:16])</dt><dd class="kv" id="hash">95dd4facf378a78b</dd>
+      <dt>Seeds</dt><dd class="kv" id="seeds">42, 43, 44</dd>
+    </dl>
+    <p class="muted">No-leakage rule: a test perturbation's true error never reaches the estimator during
+       training. The estimator is trained on out-of-fold errors on gene-disjoint splits.</p>
+  </div>
+
+  <h2>Feature spec</h2>
+  <p>Eleven leakage-safe, prediction-time feature groups. None uses any quantity derived from a perturbation's
+     true effect, so every group can be computed at inference before the ground truth is known.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Feature group</th><th>Plain description</th><th>Leakage</th></tr></thead>
+      <tbody>
+        <tr><td><code>pred_magnitude</code></td><td>Size of the predicted perturbation effect (the predictor's own output magnitude).</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>baseline_src</code></td><td>Control-state mean expression in the source context.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>dropout_src</code></td><td>Fraction of zero counts (dropout rate) in the source context.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>donor_var_src</code></td><td>Cross-donor variability of the gene in the source context.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>baseline_dst</code></td><td>Control-state mean expression in the destination context.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>dropout_dst</code></td><td>Fraction of zero counts (dropout rate) in the destination context.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>donor_var_dst</code></td><td>Cross-donor variability of the gene in the destination context.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>src_onehot(Rest,Stim8hr,Stim48hr)</code></td><td>One-hot indicator of the source activation context.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>dst_onehot(Rest,Stim8hr,Stim48hr)</code></td><td>One-hot indicator of the destination activation context.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>coexpr_embedding(50d)</code></td><td>50-dimensional co-expression neighborhood embedding of the perturbed gene.</td><td><span class="safe">no true effect</span></td></tr>
+        <tr><td><code>training_set_similarity</code></td><td>How similar this perturbation is to the estimator's training set.</td><td><span class="safe">no true effect</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Target</h2>
+  <div class="card">
+    <p>Per-perturbation transfer error, defined as <code>1 - Pearson</code> on the source-training high-variance
+       gene set. Lower is better. The estimator predicts this error, then reports it as a reliability score and a
+       calibrated error with a conformal interval.</p>
+  </div>
+
+  <h2>Calibration (held-out)</h2>
+  <div class="card">
+    <dl>
+      <dt>Expected calibration error</dt><dd class="kv" id="ece">raw 0.0076, improved to isotonic 0.0028</dd>
+      <dt>Conformal coverage</dt><dd class="kv" id="cov">0.900 at the 0.90 target</dd>
+    </dl>
+    <p class="muted">These are held-out numbers from the frozen evaluation, not in-sample. The empirical coverage
+       is reported on every result surface (invariant N2).</p>
+  </div>
+
+  <h2>Accuracy ceiling</h2>
+  <div class="card">
+    <p>Accuracy ceiling: <strong>Pearson r = 0.73 on hit genes, 0.11 on all genes</strong> (the best any
+       predictor could reach given cross-donor replicate noise). Higher is better. The corresponding
+       <code>1 - Pearson</code> error ceiling is about 0.27 on hit genes and 0.89 on all genes. This ceiling is
+       low, which is why gains from any reliability layer on the noisy primary data are modest, and it is why
+       the honest out-of-fold reliability is reported next to every result rather than a headline win.</p>
+    <p class="muted">Provenance note: the frozen artifact stores this under the key
+       <code>measured_accuracy_ceiling_1minus_pearson</code>, but the stored value is Pearson r, not
+       <code>1 - Pearson</code>. The key name is a known label bug held for a future model version. The value is
+       read as-is and labeled correctly as Pearson r here.</p>
+  </div>
+
+  <h2>Intended use and out-of-scope</h2>
+  <div class="card">
+    <p><strong>Intended use.</strong> Rank which predictions from a single perturbation predictor to trust, so a
+       user can abstain from the least-reliable predictions (selective abstention, a within-predictor ranking).</p>
+    <p class="neg"><strong>Out of scope.</strong></p>
+    <ul class="neg">
+      <li>NOT predictor routing. Picking the most-reliable predictor per perturbation does not beat the best
+          single predictor, on either the noisy primary data or the cleaner external Replogle axis.</li>
+      <li>NOT biological importance. PertEMA scores which predictions to trust, not which genes matter, and it
+          does not recover known CD4 and IL-2 regulators better than a trivial magnitude heuristic.</li>
+      <li>On single-context Norman, the PRESCRIBE method's intrinsic uncertainty beats PertEMA. Gains are small
+          and are reported against the measured accuracy ceiling above.</li>
+    </ul>
+    <p class="muted">Honest scope (verbatim from the artifact): "Reliability estimator. It scores which
+       predictions to trust, not which genes are important. Gains are modest on noisy data."</p>
+    <p class="muted">SHAP attribution explains the estimator, not biological importance.</p>
+  </div>
+
+  <h2>Provenance, license, and regeneration</h2>
+  <div class="card">
+    <dl>
+      <dt>Provenance flag</dt><dd><span class="flag">CLEAN</span> (no known pretraining overlap with benchmark data)</dd>
+      <dt>Version</dt><dd class="kv">0.1.0</dd>
+      <dt>Regenerate</dt><dd>rebuild the frozen artifact with <code>freeze_model.py</code></dd>
+      <dt>Citation</dt><dd>Manuscript in preparation. Cite by tool name and version: PertEMA v0.1.0.</dd>
+    </dl>
+    <p class="muted">Numbers on this card come from the frozen artifact provenance. The page attempts a
+       same-origin fetch of <code>/model-card.json</code> to stay in sync with the artifact and falls back to
+       these baked values if it is unavailable.</p>
+  </div>
+</main>
+<footer class="site-footer">
+  <span class="ver">model v0.1.0</span>
+  <span>Reliability layer, not a predictor. SHAP attribution explains the estimator, not biological importance.</span>
+  <a href="/methods">Methods</a>
+  <a href="/model-card">Model card</a>
+  <a href="/api">API</a>
+</footer>
+
+<script>
+// Optional same-origin sync with the frozen artifact so the card cannot drift. The baked values above are the
+// source of truth if /model-card.json (or /version) is unavailable; this only refreshes a few live fields.
+function num(x){ return (x === null || x === undefined) ? "" : x; }
+fetch("/model-card.json", {headers: {"Accept": "application/json"}})
+  .then(r => { if (!r.ok) throw new Error("no live card"); return r.json(); })
+  .then(d => {
+    if (d.model_version){ document.getElementById("mv").textContent = d.model_version;
+      document.getElementById("mv2").textContent = d.model_version; }
+    if (d.n_training_perturbations){
+      document.getElementById("ntrain").textContent = "n = " + Number(d.n_training_perturbations).toLocaleString("en-US"); }
+    if (d.training_data_hash_sha256_16){ document.getElementById("hash").textContent = d.training_data_hash_sha256_16; }
+    if (Array.isArray(d.seeds)){ document.getElementById("seeds").textContent = d.seeds.join(", "); }
+    if (d.provenance_flag){ document.getElementById("pflag").textContent = d.provenance_flag; }
+    const ev = d.evaluation_calibration;
+    if (ev){
+      if (ev.ece_raw !== undefined && ev.ece_isotonic !== undefined){
+        document.getElementById("ece").textContent =
+          "raw " + Number(ev.ece_raw).toFixed(4) + ", improved to isotonic " + Number(ev.ece_isotonic).toFixed(4); }
+      if (ev.conformal_coverage !== undefined){
+        document.getElementById("cov").textContent =
+          Number(ev.conformal_coverage).toFixed(3) + " at the " + Number(ev.conformal_target || 0.9).toFixed(2) + " target"; }
+    }
+  })
+  .catch(() => { /* keep the baked values from the frozen artifact */ });
+</script>
+</body>
+</html>

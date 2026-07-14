@@ -1,0 +1,2 @@
+n_perturbations,prescribe_uncertainty_SPCC,magnitude_heuristic_SPCC,pertema_SPCC,prescribe_uncertainty_AURC,magnitude_heuristic_AURC,pertema_AURC,oracle_AURC,noselect_AURC
+32,0.22248172368637714,,0.1063049853372434,0.13266331989538038,,0.1411578141291929,0.09867513495429431,0.15419094567187128

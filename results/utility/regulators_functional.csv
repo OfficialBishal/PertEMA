@@ -1,0 +1,41 @@
+symbol,category,source,present_in_library
+DGKZ,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator (KO increases proliferation) MAGeCK rank 1, main text and Fig 2",yes
+SOCS1,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator rank 3, main text and Fig 2, arrayed-validated (Fig 5C)",yes
+CBLB,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW screen negative regulator rank 4 Fig 2. Also Schmidt et al. Science 2022 (PMID 35113687) CRISPRi negative regulator of IL-2/IFNG",yes
+ELOB,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW screen negative regulator rank 5, arrayed-validated (Fig 5C). Reported as TCEB2 - current HGNC symbol ELOB, matched in library",yes
+UBASH3A,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator rank 10, arrayed-validated >2-fold proliferation increase (Fig 3C)",yes
+CD5,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator rank 12, arrayed-validated (Fig 3C)",yes
+TNFAIP3,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator rank 13, main text",yes
+DGKA,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator rank 17, main text",yes
+TNIP1,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator rank 24, main text",yes
+RNF7,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator rank 34, main text",yes
+CUL5,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW proliferation screen negative regulator rank 162, main text",yes
+RASA2,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW screen negative regulator, arrayed-validated >2-fold proliferation increase (Fig 3C) and enhanced tumor killing (Fig 5C)",yes
+CDKN1B,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) GW screen negative regulator of proliferation, targeting induced an activation program (scRNA-seq Results, p9)",yes
+RHOH,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) TCR-signaling positive regulator, sgRNA depleted from proliferating cells negative rank 2, main text",yes
+LCP2,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) TCR-signaling positive regulator negative rank 4. Also Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive regulator of IL-2/IFNG",yes
+VAV1,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) TCR-signaling positive regulator negative rank 8. Also Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive regulator of IL-2/IFNG",yes
+CD3D,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) TCR complex delta chain, essential positive regulator, negative rank 18, main text",yes
+LCK,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) TCR-signaling positive regulator, negative rank 20, main text",yes
+LAT,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) TCR-signaling positive regulator negative rank 38. Also Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive regulator",yes
+ZAP70,functional_screen_hit,"Shifrut et al. Cell 2018 (PMID 30449619) TCR-signaling positive regulator, negative rank 299, main text",yes
+CD28,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive regulator of IL-2 and IFNG, proximal TCR complex",yes
+TBX21,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive regulator, IFNG-selective (T-bet)",yes
+GATA3,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa hit, promotes type II differentiation and reduced IFNG",yes
+IL1R1,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive IFNG regulator",yes
+FOXQ1,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive regulator of IL-2/IFNG",yes
+LHX6,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive regulator of IL-2/IFNG",yes
+PIK3AP1,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa positive regulator of IL-2/IFNG",yes
+OTUD7B,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) positive regulator of proximal TCR signaling, screen hit",yes
+TRAF3IP2,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) IFNG regulator, screen hit",yes
+TNFRSF1A,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa IFNG regulator, TNFRSF member",yes
+TNFRSF1B,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa IFNG regulator, TNFRSF member",yes
+LTBR,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa IFNG regulator, TNFRSF member",no
+CD27,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRa IFNG regulator, TNFRSF member",yes
+MAP4K1,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) negative TCR-signaling regulator, screen hit",yes
+SLA2,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) negative TCR-signaling regulator, screen hit",yes
+MALT1,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRi hit required for IFNG production",yes
+BCL10,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRi hit required for IFNG production",yes
+TRAF6,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRi stimulation-signaling circuit hit",yes
+MAP3K7,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) CRISPRi stimulation-signaling circuit hit (TAK1)",no
+IKZF3,functional_screen_hit,"Schmidt et al. Science 2022 (PMID 35113687) negative regulator screen hit (Aiolos)",yes

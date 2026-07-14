@@ -1,0 +1,2 @@
+dataset,split,n,mean_r_AB,mean_floor_sb,best_fixed,f_noise_guide,f_noise_donor,donor_floor_sb
+Gladstone_CD4,guide_level_pooled_donors,35747,0.0552270274792104,0.7052939879533865,0.7037095542557176,1.0022515449564198,0.9718860163081178,0.6839254753235506

@@ -1,0 +1,5 @@
+dataset,error_correlation_rho,N_eff,shared_noise_fraction_f,mean_skill_spread_mu,simulated_geometry_capture,break_even_router_r,realized_router_r,geometry_feasible,deployable_routing,empirical_routing
+Gladstone_CD4,0.919,1.161,0.9719,0.0933,-0.27,0.615,,no,infeasible,"NEGATIVE (tested, D6): noise-dominated, no headroom"
+Replogle_K562,0.7919,1.322,0.2248,0.3057,-0.3431,0.806,,no,infeasible,"NEGATIVE (tested, D6): dominant best predictor, no headroom"
+Norman_K562,0.9114,1.124,0.0872,0.2103,-0.529,0.908,,no,not tested,prediction (no routing test)
+Adamson_K562,0.4623,2.046,0.0711,0.2803,0.2615,0.457,0.215,yes,infeasible,"NEGATIVE (tested, X1): feasible geometry (headroom +0.088), insufficient router (r 0.215 < r* 0.457)"

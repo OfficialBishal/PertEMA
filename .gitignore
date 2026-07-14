@@ -1,0 +1,56 @@
+# pixi solved environment (do not commit the env, DO commit pixi.toml and pixi.lock)
+.pixi/
+
+# large data downloads and derived artifacts
+data/raw/
+data/processed/
+data/external/
+*.h5ad
+*.h5mu
+*.loom
+*.mtx
+*.zarr/
+
+# model weights and checkpoints
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# bulky binary result dumps (keep small tables, json, and markdown)
+results/**/*.npz
+results/**/*.npy
+results/**/*.parquet
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# verbose logs (structured results live under results/)
+logs/*.log
+
+# session and editor state
+.remember/
+
+# os cruft
+.DS_Store
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+baselines/PRESCRIBE/
+results/transfer/*.csv
+containers/
+results/features/gene2vec_raw.txt
+manuscript/sn-article-template/
+manuscript/reference_papers/
+manuscript/sn-pertema/bst/
+manuscript/sn-pertema/measure*
+build/reproduce_ult*.log
+references/
+manuscript/my_old_papers/
+results/loop/
+
+# demo reel intermediate PNGs (regenerable; embedded base64 in the html)
+video/assets/

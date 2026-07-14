@@ -1,0 +1,11 @@
+claim,p_value,bh_qvalue,significant_at_fdr_005,source
+"PertEMA reliability beats magnitude heuristic (AURC, paired cluster bootstrap over genes)",0.0005,0.005,True,research-log / significance.py
+"Magnitude anti-selects reproducibility, Stim48hr (threshold-free Spearman)",0.0025,0.0125,True,results/utility/utility_spearman.csv
+"Magnitude below chance at reproducibility precision, Stim48hr q0.50 (hypergeometric)",0.004,0.0133,True,results/utility/precision_at_k.csv
+"Reliability underperforms magnitude at regulator recovery, pathway set (degree-matched null)",0.007,0.0175,True,results/utility/UTILITY_FINDINGS.md
+"Magnitude below chance at reproducibility precision, Stim48hr q0.90 (hypergeometric)",0.035,0.07,False,results/utility/precision_at_k.csv
+"Reliability enriches reproducibility, Stim8hr (threshold-free Spearman)",0.069,0.095,False,results/utility/utility_spearman.csv
+"Magnitude below chance at reproducibility precision, Stim48hr q0.75 (hypergeometric)",0.069,0.095,False,results/utility/precision_at_k.csv
+"Magnitude anti-selects reproducibility, Stim8hr (threshold-free Spearman)",0.076,0.095,False,results/utility/utility_spearman.csv
+"Reliability underperforms magnitude at regulator recovery, functional set (degree-matched null)",0.141,0.1567,False,results/utility/UTILITY_FINDINGS.md
+"Reliability enriches reproducibility, Stim48hr (threshold-free Spearman, expected null)",0.59,0.59,False,results/utility/utility_spearman.csv

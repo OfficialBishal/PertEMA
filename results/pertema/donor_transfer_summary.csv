@@ -1,0 +1,2 @@
+axis,spearman_est,spearman_rand,spearman_labelshuffle,aurc_est,aurc_similarity,aurc_random_feat,aurc_oracle,aurc_noselect,mean_transfer_err
+donor,0.110 +/- 0.001,0.004 +/- 0.014,-0.015 +/- 0.004,0.973 +/- 0.000,0.981 +/- 0.000,0.982 +/- 0.000,0.892 +/- 0.000,0.985 +/- 0.000,0.985 +/- 0.000
