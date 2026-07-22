@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use PertEMA, please cite it using the metadata below."
+title: "PertEMA: Perturbation Error Meta-Assessment"
+abstract: >-
+  A post-hoc reliability estimator for single-cell perturbation prediction. Rather than
+  build a better predictor, PertEMA scores which individual predictions can be trusted,
+  using isotonic-calibrated error and split-conformal intervals over prediction-time,
+  leakage-safe features, and ships a self-hostable, fully in-browser demo.
+type: software
+authors:
+  - given-names: Bishal
+    family-names: Shrestha
+    orcid: "https://orcid.org/0009-0004-8330-4348"
+    affiliation: "University of Miami"
+repository-code: "https://github.com/OfficialBishal/PertEMA"
+url: "https://shresthabishal.com/projects/pertema/"
+license: MIT
+version: "0.1.0"
+date-released: "2026-07-22"
+keywords:
+  - single-cell
+  - perturbation prediction
+  - Perturb-seq
+  - reliability estimation
+  - conformal prediction
+  - selective prediction
+  - uncertainty quantification

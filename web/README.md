@@ -51,3 +51,8 @@ cases (missing embeddings, duplicate genes, symbol/Ensembl resolution, band boun
   browser. Same numbers as the server, nothing to run.
 - **`../app` (FastAPI)** — the REST API and programmatic/self-hosted service, for batch scoring or
   integration into a pipeline.
+
+## Citation
+
+If you use PertEMA, please cite the software — see [Citation](../README.md#citation) and
+[`../CITATION.cff`](../CITATION.cff).

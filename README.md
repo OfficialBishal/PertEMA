@@ -50,6 +50,12 @@ pixi run score-test # load the committed frozen model and score the bundled exam
 pixi run app-test   # exercise the FastAPI app end to end
 ```
 
+A **fully client-side** build lives in [`web/`](web/) and is hosted at <https://shresthabishal.com/projects/pertema/>.
+It ports the whole scoring pipeline (featurization, the gradient-boosted estimator, isotonic calibration,
+split-conformal intervals, and exact TreeSHAP) to dependency-free JavaScript, verified bit-for-bit against the
+FastAPI backend, so the tool runs with no server and a predictor's outputs never leave the browser. See
+[`web/README.md`](web/README.md).
+
 ## Environment
 
 Managed with [pixi](https://pixi.sh) (conda-forge and bioconda), pinned in `pixi.toml` and locked in
@@ -116,3 +122,24 @@ out-of-fold errors and re-freeze with `pixi run freeze-model`.
 The analyzed datasets are public releases used under their own terms: the primary CD4 T cell Perturb-seq screen
 (openRxiv, DOI 10.64898/2025.12.23.696273), Replogle 2022 (DOI 10.1038/s41588-022-01066-3), Norman 2019
 (DOI 10.1126/science.aax4438), and Adamson 2016 (DOI 10.1016/j.cell.2016.11.048).
+
+## Citation
+
+There is no accompanying paper yet, but the software is citable. If you use PertEMA, please cite:
+
+> Bishal Shrestha. *PertEMA: Perturbation Error Meta-Assessment* (Version 0.1.0) [Computer software]. 2026.
+> https://github.com/OfficialBishal/PertEMA
+
+```bibtex
+@software{shrestha_pertema_2026,
+  author  = {Shrestha, Bishal},
+  title   = {{PertEMA}: Perturbation Error Meta-Assessment},
+  year    = {2026},
+  version = {0.1.0},
+  url     = {https://github.com/OfficialBishal/PertEMA}
+}
+```
+
+GitHub's "Cite this repository" button (generated from [`CITATION.cff`](CITATION.cff)) produces APA and BibTeX
+automatically. For a permanent, versioned DOI, archive a release on [Zenodo](https://zenodo.org) — add the DOI
+here and to `CITATION.cff` once minted.

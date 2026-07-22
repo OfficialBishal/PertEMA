@@ -28,6 +28,7 @@
   .site-footer a{ color:var(--accent); text-decoration:none; }
 
   *{box-sizing:border-box}
+  [hidden]{display:none!important}   /* make the hidden attribute authoritative over class/inline display */
   body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);background:var(--bg)}
   header.hero{padding:28px 32px 18px;border-bottom:1px solid var(--line);max-width:1100px;margin:0 auto}
   h1{margin:0 0 4px;font-size:22px;font-weight:640}
@@ -259,7 +260,9 @@ import { renderReport } from './js/report.mjs';
 const BANDCOLOR={high:'#0072B2',moderate:'#009E73',low:'#E69F00','very-low':'#D55E00'};
 let rows=[];
 let MODEL=null, FEAT=null, EXAMPLE=null, ready=false;
+let lastEnv=null, lastExtra=null;   // the most recently scored envelope (drives the HTML report)
 const $=id=>document.getElementById(id);
+const tick=()=>new Promise(r=>setTimeout(r,0));   // yield so the spinner + status paint before heavy compute
 
 // ---- boot: load the model + reference assets once, with progress ----------
 function setAppEnabled(on){['scoreCsv','loadExample','reportBtn','run'].forEach(id=>{const b=$(id);if(b)b.disabled=!on;});}
@@ -295,10 +298,11 @@ function toRows(d){
       why:dr?dr.group.replace(/_/g,' ')+' ('+dr.direction+')':'',neighbors:nb.slice(0,4).join(', '),
       expl:ex||null,nbList:nb};});
 }
-function run(){
-  clearError(); setBusy(true);
+async function run(){
+  clearError(); setBusy(true); await tick();
   try{
     const d=scoreExample(MODEL,FEAT,EXAMPLE.features,EXAMPLE.genes);
+    lastEnv=d; lastExtra=null;
     $('warn').hidden=false; $('warn').textContent='Note: '+d.in_sample_warning;
     $('integrity').innerHTML=integrityHTML(d);
     rows=toRows(d);
@@ -444,15 +448,16 @@ function setBusy(on){
 }
 function showError(m){const b=$('errbox');b.hidden=false;b.textContent='Error: '+m;b.scrollIntoView({behavior:'smooth',block:'nearest'});}
 function clearError(){$('errbox').hidden=true;}
-function runIngest(){
+async function runIngest(){
   const csv=$('csv').value.trim();
   const msg=$('ingestmsg');
   clearError();
   if(!csv){showError('paste or upload a CSV first, or press Load the built-in example.');return;}
-  msg.textContent='scoring...'; setBusy(true);
+  msg.textContent='scoring...'; setBusy(true); await tick();
   try{
     const d=ingestScore(MODEL,FEAT,csv,$('srcSel').value,$('dstSel').value);
     const fr=d.featurize_report;
+    lastEnv=d; lastExtra={'perturbations scored':d.genes.length,'mapped fraction':fr.mapped_fraction,'unmapped genes':fr.n_unmapped_genes,'rejected contexts':fr.n_bad_context};
     msg.textContent=`scored ${d.results.length} perturbations, mapped ${(fr.mapped_fraction*100).toFixed(0)}% of genes`;
     $('warn').hidden=false; $('warn').textContent='Note: '+d.note;
     $('integrity').innerHTML=integrityHTML(d,kv('mapped fraction',fr.mapped_fraction));
@@ -485,14 +490,9 @@ function exportRetained(){
   a.download='pertema_retained.csv'; a.click();
 }
 function downloadReport(){
-  const csv=$('csv').value.trim();
-  if(!csv){$('ingestmsg').textContent='paste a CSV first';return;}
-  $('ingestmsg').textContent='building report...';
+  if(!lastEnv){$('ingestmsg').textContent='score something first — run the example or paste a CSV and press Score';return;}
   try{
-    const d=ingestScore(MODEL,FEAT,csv,$('srcSel').value,$('dstSel').value);
-    const extra={'perturbations scored':d.genes.length,'mapped fraction':d.featurize_report.mapped_fraction,
-      'unmapped genes':d.featurize_report.n_unmapped_genes,'rejected contexts':d.featurize_report.n_bad_context};
-    const html=renderReport(d,MODEL,extra);
+    const html=renderReport(lastEnv,MODEL,lastExtra||{});
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
     a.download='pertema_report.html'; a.click();
     $('ingestmsg').textContent='report downloaded';
