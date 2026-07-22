@@ -1,0 +1,41 @@
+{
+  "model_version": "0.1.0",
+  "estimator": "xgboost gradient-boosted tree (n_estimators=300, max_depth=6, lr=0.05)",
+  "trained_on": "Gladstone CD4 activation-transfer errors of the per-condition mean predictor, all folds",
+  "n_training_perturbations": 64024,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "training_data_hash_sha256_16": "95dd4facf378a78b",
+  "feature_spec": {
+    "description": "prediction-time features only, no true-effect quantity (leakage-safe)",
+    "features": [
+      "pred_magnitude",
+      "baseline_src",
+      "dropout_src",
+      "donor_var_src",
+      "baseline_dst",
+      "dropout_dst",
+      "donor_var_dst",
+      "src_onehot(Rest,Stim8hr,Stim48hr)",
+      "dst_onehot(Rest,Stim8hr,Stim48hr)",
+      "coexpr_embedding(50d)",
+      "training_set_similarity"
+    ],
+    "target": "per-perturbation transfer error, 1 - Pearson on the source-training high-variance gene set"
+  },
+  "measured_accuracy_ceiling_1minus_pearson": {
+    "hit_genes": 0.731,
+    "all_genes": 0.111
+  },
+  "evaluation_calibration": {
+    "ece_raw": 0.0075921884099818,
+    "ece_isotonic": 0.0027750863503618,
+    "conformal_coverage": 0.9003032522690747,
+    "conformal_target": 0.9
+  },
+  "honest_scope": "Reliability estimator. It scores which predictions to trust, not which genes are important. Gains are modest on noisy data (see manuscript). Never retrain on user truth.",
+  "provenance_flag": "CLEAN"
+}

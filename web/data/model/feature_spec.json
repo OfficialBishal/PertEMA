@@ -1,0 +1,17 @@
+{
+  "description": "prediction-time features only, no true-effect quantity (leakage-safe)",
+  "features": [
+    "pred_magnitude",
+    "baseline_src",
+    "dropout_src",
+    "donor_var_src",
+    "baseline_dst",
+    "dropout_dst",
+    "donor_var_dst",
+    "src_onehot(Rest,Stim8hr,Stim48hr)",
+    "dst_onehot(Rest,Stim8hr,Stim48hr)",
+    "coexpr_embedding(50d)",
+    "training_set_similarity"
+  ],
+  "target": "per-perturbation transfer error, 1 - Pearson on the source-training high-variance gene set"
+}
