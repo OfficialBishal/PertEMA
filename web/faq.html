@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PertEMA - FAQ</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230072B2'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23fff'/%3E%3Crect x='3' y='6.5' width='7.5' height='2' fill='%23A7DFF0'/%3E%3Crect x='3' y='10' width='5' height='2' fill='%23E69F00'/%3E%3C/svg%3E">
+<style>
+  :root{--bg:#fbfbfd;--fg:#1a1a1f;--muted:#666;--line:#e2e2e8;--accent:#0072B2;}
+  body{margin:0;font:15.5px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);background:var(--bg)}
+  main{max-width:820px;margin:0 auto;padding:32px 28px 60px}
+  h1{font-size:24px;margin:0 0 6px}
+  h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  a{color:var(--accent)} code{background:#f2f2f6;padding:1px 5px;border-radius:4px;font-size:13px}
+  .muted{color:var(--muted)} .neg{color:#8a3b12} p{margin:8px 0}
+  .box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:12px 0}
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a6270; --card:#f6f8fa; --border:#e3e7ec; --accent:#0072B2;
+    --band-high:#0072B2; --band-moderate:#009E73; --band-low:#E69F00; --band-verylow:#D55E00;
+  }
+  body{ background:var(--bg); color:var(--fg); }
+  .site-nav{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:1rem;
+    padding:.6rem 1rem; background:var(--card); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .site-nav .brand{ font-weight:700; color:var(--accent); text-decoration:none; font-size:1.05rem; letter-spacing:.02em; }
+  .site-nav nav{ display:flex; gap:.9rem; flex-wrap:wrap; margin-left:auto; }
+  .site-nav nav a{ color:var(--fg); text-decoration:none; font-size:.92rem; opacity:.85; }
+  .site-nav nav a:hover{ opacity:1; }
+  .site-nav nav a.active{ color:var(--accent); font-weight:600; opacity:1; border-bottom:2px solid var(--accent); }
+  .site-footer{ margin-top:2.5rem; padding:1rem; border-top:1px solid var(--border); color:var(--muted);
+    font-size:.85rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+  .site-footer .ver{ font-family:ui-monospace,Menlo,Consolas,monospace; background:var(--card);
+    border:1px solid var(--border); border-radius:4px; padding:.1rem .4rem; }
+</style>
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="index.html">PertEMA</a>
+  <nav>
+    <a href="index.html">Tool</a>
+    <a href="methods.html">Methods</a>
+    <a href="interpret.html">Interpret</a>
+    <a href="model_card.html">Model card</a>
+    <a href="benchmark.html">Benchmark</a>
+    <a href="api.html">API</a>
+    <a href="faq.html" class="active" aria-current="page">FAQ</a>
+  </nav>
+</header>
+<main>
+  <h1>Frequently asked questions</h1>
+
+  <h2>What is PertEMA?</h2>
+  <p>PertEMA is a post-hoc, model-agnostic reliability layer for single-cell perturbation predictors. It wraps
+     any predictor and estimates the per-perturbation error of that predictor's outputs from prediction-time
+     features only, so it can tell you which predictions to trust. It is not itself a predictor, and it does not
+     identify biologically important genes. The primary deliverable is an open reliability benchmark plus this
+     self-hostable tool. See the <a href="methods.html">methods</a> page for the full method and the measured
+     results.</p>
+
+  <h2>Does it need my predictor's ground truth?</h2>
+  <p>No. To score your predictions PertEMA uses prediction-time features only, so it needs no true effects at
+     scoring time. The shipped estimator was trained once, on the developers' own data, and it is loaded
+     read-only. If you do supply ground truth, it is used only to report your realized error back to you in an
+     evaluate mode. It is never used to refit the shipped estimator. This is a hard no-leakage rule: a test
+     perturbation's true error never reaches the estimator during training.</p>
+
+  <h2>What does a low band mean?</h2>
+  <p>The <code>low</code> band means the calibrated error estimate for that prediction falls in the
+     <code>0.88 to 0.94</code> range on the <code>1 - Pearson</code> scale, which reads as treat with
+     skepticism. It is worse than <code>high</code> and <code>moderate</code> and better than
+     <code>very-low</code>. Practically, do not rely on a low-band prediction on its own. A band is a relative
+     ranking on noisy data, not an absolute verdict, so see <a href="interpret.html">interpret your results</a> for
+     the full band table and the caveats.</p>
+
+  <h2>Why are the gains small?</h2>
+  <p>Because the underlying predictions are noisy and the error is noise-dominated. The measured accuracy
+     ceiling of the perturbation predictions is modest (the best achievable cross-donor <code>Pearson r</code> is about 0.73 on hit
+     genes and 0.11 on all genes, higher is better), which leaves little headroom for any reliability layer to exploit. We report
+     this plainly. A routing procedure that picks the most-reliable predictor per perturbation does not beat the
+     best single predictor on the noisy primary data, and on single-context Norman the PRESCRIBE method's
+     intrinsic uncertainty beats PertEMA. The clearest positive result is external and cross-cell-line. Honesty
+     outranks winning here, so the honest out-of-fold reliability and the accuracy ceiling are shown on every
+     result.</p>
+
+  <h2>What about foundation-model pretraining overlap?</h2>
+  <div class="box neg">
+    <p>A foundation model may have seen a benchmark dataset during its pretraining, in which case strong
+       apparent generalization can really be memorization. To keep that from being mistaken for a clean result,
+       every entry in the benchmark carries a pretraining-provenance flag. The shipped estimator here is flagged
+       <code>CLEAN</code>. When foundation-model results are added, their provenance flag travels with them so a
+       possible train-test overlap is always visible next to the number.</p>
+  </div>
+  <h2>Accessibility</h2>
+  <p>The interface uses the Okabe-Ito colorblind-safe palette, and every reliability band is labelled with text
+     (high, moderate, low, very-low), never encoded by color alone. Controls are native buttons, inputs, and
+     selects, so they are keyboard operable, the sortable table headers respond to Enter and Space, and keyboard
+     focus is shown with a visible ring. The charts carry text alternatives. A formal automated WCAG AA audit is
+     not yet part of the build and is the documented remaining step.</p>
+  <p class="muted">More detail and the full reference list: the <a href="methods.html">methods and honest scope</a>
+     page and the open <a href="benchmark.html">benchmark</a>.</p>
+</main>
+<footer class="site-footer">
+  <span class="ver">model v0.1.0</span>
+  <span>Reliability layer, not a predictor. SHAP attribution explains the estimator, not biological importance.</span>
+  <a href="methods.html">Methods</a>
+  <a href="model_card.html">Model card</a>
+  <a href="api.html">API</a>
+</footer>
+</body>
+</html>

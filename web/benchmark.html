@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PertEMA - Benchmark</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230072B2'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23fff'/%3E%3Crect x='3' y='6.5' width='7.5' height='2' fill='%23A7DFF0'/%3E%3Crect x='3' y='10' width='5' height='2' fill='%23E69F00'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a6270; --card:#f6f8fa; --border:#e3e7ec; --accent:#0072B2;
+    --band-high:#0072B2; --band-moderate:#009E73; --band-low:#E69F00; --band-verylow:#D55E00;
+  }
+  *{box-sizing:border-box}
+  body{ margin:0; background:var(--bg); color:var(--fg);
+        font:15.5px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+  main{ max-width:1040px; margin:0 auto; padding:26px 24px 40px; }
+  h1{ font-size:24px; margin:0 0 6px }
+  h2{ font-size:17px; margin:28px 0 8px; border-bottom:1px solid var(--border); padding-bottom:5px }
+  p{ margin:8px 0 }
+  a{ color:var(--accent) }
+  code{ background:var(--card); border:1px solid var(--border); padding:1px 5px; border-radius:4px; font-size:13px }
+  .muted{ color:var(--muted) }
+  .lede{ background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin:14px 0 }
+  .actions{ display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; margin:12px 0 }
+  .btn{ display:inline-block; background:var(--accent); color:#fff; text-decoration:none; border:none;
+        border-radius:6px; padding:.45rem .8rem; font-size:.9rem; cursor:pointer }
+  .btn.secondary{ background:transparent; color:var(--accent); border:1px solid var(--accent) }
+  .controls{ display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin:10px 0 }
+  .controls label{ font-size:.85rem; color:var(--muted) }
+  select{ font:inherit; padding:.25rem .4rem; border:1px solid var(--border); border-radius:5px;
+          background:var(--bg); color:var(--fg) }
+  .tablewrap{ overflow-x:auto; border:1px solid var(--border); border-radius:10px; margin:12px 0 }
+  table{ border-collapse:collapse; width:100%; font-size:13.5px }
+  th,td{ text-align:left; padding:.4rem .6rem; border-bottom:1px solid var(--border); white-space:nowrap }
+  th{ position:sticky; top:0; background:var(--card); font-weight:600 }
+  tbody tr:hover{ background:var(--card) }
+  td.num{ text-align:right; font-variant-numeric:tabular-nums }
+  .flag{ display:inline-block; font-size:11.5px; font-weight:600; padding:.05rem .4rem; border-radius:20px;
+         border:1px solid var(--border) }
+  .flag.clean{ color:var(--band-moderate); border-color:var(--band-moderate) }
+  .flag.overlap{ color:var(--band-verylow); border-color:var(--band-verylow) }
+  .pertema-row td{ font-weight:600 }
+  .status{ font-size:.85rem; color:var(--muted); margin:8px 0 }
+  .legend{ font-size:.85rem; color:var(--muted); margin:6px 0 }
+  .site-nav{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:1rem;
+    padding:.6rem 1rem; background:var(--card); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .site-nav .brand{ font-weight:700; color:var(--accent); text-decoration:none; font-size:1.05rem; letter-spacing:.02em; }
+  .site-nav nav{ display:flex; gap:.9rem; flex-wrap:wrap; margin-left:auto; }
+  .site-nav nav a{ color:var(--fg); text-decoration:none; font-size:.92rem; opacity:.85; }
+  .site-nav nav a:hover{ opacity:1; }
+  .site-nav nav a.active{ color:var(--accent); font-weight:600; opacity:1; border-bottom:2px solid var(--accent); }
+  .site-footer{ margin-top:2.5rem; padding:1rem; border-top:1px solid var(--border); color:var(--muted);
+    font-size:.85rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+  .site-footer .ver{ font-family:ui-monospace,Menlo,Consolas,monospace; background:var(--card);
+    border:1px solid var(--border); border-radius:4px; padding:.1rem .4rem; }
+</style>
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="index.html">PertEMA</a>
+  <nav>
+    <a href="index.html">Tool</a>
+    <a href="methods.html">Methods</a>
+    <a href="interpret.html">Interpret</a>
+    <a href="model_card.html">Model card</a>
+    <a href="benchmark.html" class="active" aria-current="page">Benchmark</a>
+    <a href="api.html">API</a>
+    <a href="faq.html">FAQ</a>
+  </nav>
+</header>
+<main>
+  <h1>Open reliability benchmark</h1>
+
+  <div class="lede">
+    <p><strong>What this is.</strong> A standardized, open table that scores reliability (uncertainty-quantification)
+       methods for single-cell perturbation predictors across datasets and context-transfer settings. Each row is
+       one method measured on one predictor in one transfer setting, with a pretraining-provenance flag so a
+       possible train-test overlap is always visible next to the number. PertEMA is one method in this table, not
+       the whole benchmark.</p>
+    <p class="muted"><strong>How to read it.</strong> Two metrics are reported. <code>aurc</code> is the
+       area under the risk-coverage curve (mean 1 - Pearson error when you abstain from the least-reliable
+       predictions first), where lower is better and <code>oracle</code> is the best reachable and
+       <code>no_selection</code> is the do-nothing baseline. <code>reliability_spearman</code> is the Spearman
+       correlation between predicted reliability and realized accuracy, where higher is better and the
+       <code>random_feature_control</code> and <code>label_shuffle_control</code> rows should sit near zero. The
+       <code>provenance</code> flag is <code>CLEAN</code> unless a predictor's pretraining may overlap the
+       benchmark data, in which case it reads <code>UNKNOWN-OVERLAP</code>. Gains are modest on the noisy primary
+       data and the clearest positive result is external and cross-cell-line (Replogle K562 to RPE1). See the
+       <a href="methods.html">methods page</a> for the honest scope.</p>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="dlcsv" type="button">Download CSV</button>
+    <a class="btn secondary" href="data/benchmark/benchmark.json">Raw JSON</a>
+  </div>
+
+  <div class="controls">
+    <label for="fds">Dataset</label>
+    <select id="fds"><option value="">all</option></select>
+    <label for="fset">Transfer setting</label>
+    <select id="fset"><option value="">all</option></select>
+    <label for="fmet">Metric</label>
+    <select id="fmet"><option value="">all</option></select>
+  </div>
+
+  <p class="status" id="status"></p>
+
+  <div class="tablewrap">
+    <table id="bench">
+      <thead>
+        <tr>
+          <th>Dataset</th><th>Transfer setting</th><th>Predictor</th><th>UQ method</th>
+          <th>Metric</th><th>Value</th><th>95% CI</th><th>n</th><th>Provenance</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="legend">Rows for the <code>pertema</code> method are shown in bold. A blank cell means the value was
+     not recorded for that row. Confidence intervals are half-width 95% intervals where available.</p>
+</main>
+<footer class="site-footer">
+  <span class="ver">model v0.1.0</span>
+  <span>Reliability layer, not a predictor. SHAP attribution explains the estimator, not biological importance.</span>
+  <a href="methods.html">Methods</a>
+  <a href="model_card.html">Model card</a>
+  <a href="api.html">API</a>
+</footer>
+
+<script>
+// Static fallback of the frozen benchmark table (results/benchmark/benchmark_reliability.csv). The page tries
+// a same-origin fetch of /benchmark.json first; if that is unavailable it renders this baked copy and says so.
+const STATIC_ROWS = [{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"pertema","metric":"aurc","value":0.81,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"magnitude_heuristic","metric":"aurc","value":0.819,"ci95":0.001,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"similarity_heuristic","metric":"aurc","value":0.818,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"random_feature_control","metric":"aurc","value":0.817,"ci95":0.001,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"oracle","metric":"aurc","value":0.742,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"no_selection","metric":"aurc","value":0.818,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"pertema","metric":"reliability_spearman","value":0.098,"ci95":0.003,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"random_feature_control","metric":"reliability_spearman","value":-0.004,"ci95":0.011,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"mean_condition","uq_method":"label_shuffle_control","metric":"reliability_spearman","value":0.006,"ci95":0.005,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"pertema","metric":"aurc","value":0.854,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"magnitude_heuristic","metric":"aurc","value":0.867,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"similarity_heuristic","metric":"aurc","value":0.874,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"random_feature_control","metric":"aurc","value":0.87,"ci95":0.001,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"oracle","metric":"aurc","value":0.805,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"no_selection","metric":"aurc","value":0.872,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"pertema","metric":"reliability_spearman","value":0.215,"ci95":0.001,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"random_feature_control","metric":"reliability_spearman","value":-0.001,"ci95":0.016,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"knn_coexpr_k25","uq_method":"label_shuffle_control","metric":"reliability_spearman","value":0.005,"ci95":0.019,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"pertema","metric":"aurc","value":0.817,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"magnitude_heuristic","metric":"aurc","value":0.83,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"similarity_heuristic","metric":"aurc","value":0.825,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"random_feature_control","metric":"aurc","value":0.827,"ci95":0.001,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"oracle","metric":"aurc","value":0.753,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"no_selection","metric":"aurc","value":0.829,"ci95":0.0,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"pertema","metric":"reliability_spearman","value":0.147,"ci95":0.003,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"random_feature_control","metric":"reliability_spearman","value":-0.01,"ci95":0.011,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"single_context","predictor":"ridge_embed","uq_method":"label_shuffle_control","metric":"reliability_spearman","value":0.018,"ci95":0.007,"n":33983,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"pertema","metric":"aurc","value":0.871,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"magnitude_heuristic","metric":"aurc","value":0.874,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"similarity_heuristic","metric":"aurc","value":0.88,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"random_feature_control","metric":"aurc","value":0.881,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"oracle","metric":"aurc","value":0.82,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"no_selection","metric":"aurc","value":0.881,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"pertema","metric":"reliability_spearman","value":0.132,"ci95":0.003,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"random_feature_control","metric":"reliability_spearman","value":-0.003,"ci95":0.008,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"mean_condition","uq_method":"label_shuffle_control","metric":"reliability_spearman","value":0.015,"ci95":0.011,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"pertema","metric":"aurc","value":0.907,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"magnitude_heuristic","metric":"aurc","value":0.91,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"similarity_heuristic","metric":"aurc","value":0.919,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"random_feature_control","metric":"aurc","value":0.915,"ci95":0.001,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"oracle","metric":"aurc","value":0.866,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"no_selection","metric":"aurc","value":0.918,"ci95":0.0,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"pertema","metric":"reliability_spearman","value":0.151,"ci95":0.006,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"random_feature_control","metric":"reliability_spearman","value":-0.007,"ci95":0.049,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer","predictor":"knn_coexpr_k25","uq_method":"label_shuffle_control","metric":"reliability_spearman","value":0.015,"ci95":0.018,"n":135932,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"donor_transfer","predictor":"donor","uq_method":"pertema","metric":"aurc","value":0.973,"ci95":0.0,"n":null,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"donor_transfer","predictor":"donor","uq_method":"similarity_heuristic","metric":"aurc","value":0.981,"ci95":0.0,"n":null,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"donor_transfer","predictor":"donor","uq_method":"random_feature_control","metric":"aurc","value":0.982,"ci95":0.0,"n":null,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"donor_transfer","predictor":"donor","uq_method":"oracle","metric":"aurc","value":0.892,"ci95":0.0,"n":null,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"donor_transfer","predictor":"donor","uq_method":"no_selection","metric":"aurc","value":0.985,"ci95":0.0,"n":null,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"donor_transfer","predictor":"donor","uq_method":"pertema","metric":"reliability_spearman","value":0.11,"ci95":0.001,"n":null,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"donor_transfer","predictor":"donor","uq_method":"random_feature_control","metric":"reliability_spearman","value":0.004,"ci95":0.014,"n":null,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"donor_transfer","predictor":"donor","uq_method":"label_shuffle_control","metric":"reliability_spearman","value":-0.015,"ci95":0.004,"n":null,"provenance":"CLEAN"},{"dataset":"Replogle_K562_RPE1","setting":"cross_cell_line_transfer","predictor":"external_k562_rpe1","uq_method":"pertema","metric":"aurc","value":0.518,"ci95":0.002,"n":1696,"provenance":"CLEAN"},{"dataset":"Replogle_K562_RPE1","setting":"cross_cell_line_transfer","predictor":"external_k562_rpe1","uq_method":"similarity_heuristic","metric":"aurc","value":0.601,"ci95":0.002,"n":1696,"provenance":"CLEAN"},{"dataset":"Replogle_K562_RPE1","setting":"cross_cell_line_transfer","predictor":"external_k562_rpe1","uq_method":"random_feature_control","metric":"aurc","value":0.594,"ci95":0.008,"n":1696,"provenance":"CLEAN"},{"dataset":"Replogle_K562_RPE1","setting":"cross_cell_line_transfer","predictor":"external_k562_rpe1","uq_method":"oracle","metric":"aurc","value":0.459,"ci95":0.0,"n":1696,"provenance":"CLEAN"},{"dataset":"Replogle_K562_RPE1","setting":"cross_cell_line_transfer","predictor":"external_k562_rpe1","uq_method":"no_selection","metric":"aurc","value":0.598,"ci95":0.0,"n":1696,"provenance":"CLEAN"},{"dataset":"Replogle_K562_RPE1","setting":"cross_cell_line_transfer","predictor":"external_k562_rpe1","uq_method":"pertema","metric":"reliability_spearman","value":0.567,"ci95":0.005,"n":1696,"provenance":"CLEAN"},{"dataset":"Replogle_K562_RPE1","setting":"cross_cell_line_transfer","predictor":"external_k562_rpe1","uq_method":"random_feature_control","metric":"reliability_spearman","value":-0.007,"ci95":0.011,"n":1696,"provenance":"CLEAN"},{"dataset":"Replogle_K562_RPE1","setting":"cross_cell_line_transfer","predictor":"external_k562_rpe1","uq_method":"label_shuffle_control","metric":"reliability_spearman","value":0.01,"ci95":0.011,"n":1696,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"knn_coexpr_k25","uq_method":"pertema","metric":"aurc","value":0.907,"ci95":0.0,"n":67086,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"knn_coexpr_k25","uq_method":"pertema","metric":"reliability_spearman","value":0.152,"ci95":0.005,"n":67086,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"knn_coexpr_k25","uq_method":"deep_ensemble_intrinsic","metric":"aurc","value":0.911,"ci95":0.0,"n":67086,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"knn_coexpr_k25","uq_method":"deep_ensemble_intrinsic","metric":"reliability_spearman","value":0.072,"ci95":0.004,"n":67086,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"knn_coexpr_k25","uq_method":"magnitude_heuristic","metric":"aurc","value":0.91,"ci95":0.0,"n":67086,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"knn_coexpr_k25","uq_method":"magnitude_heuristic","metric":"reliability_spearman","value":-0.076,"ci95":0.003,"n":67086,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"knn_coexpr_k25","uq_method":"oracle","metric":"aurc","value":0.866,"ci95":0.0,"n":67086,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"knn_coexpr_k25","uq_method":"no_selection","metric":"aurc","value":0.918,"ci95":0.0,"n":67086,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"mlp_decoder","uq_method":"mc_dropout_intrinsic","metric":"aurc","value":0.907,"ci95":0.001,"n":null,"provenance":"CLEAN"},{"dataset":"Gladstone_CD4","setting":"activation_transfer_pooled","predictor":"mlp_decoder","uq_method":"mc_dropout_intrinsic","metric":"reliability_spearman","value":0.039,"ci95":0.006,"n":null,"provenance":"CLEAN"},{"dataset":"Norman_K562","setting":"single_context","predictor":"prescribe_gears_backbone","uq_method":"pertema","metric":"aurc","value":0.1412,"ci95":null,"n":32,"provenance":"CLEAN"},{"dataset":"Norman_K562","setting":"single_context","predictor":"prescribe_gears_backbone","uq_method":"pertema","metric":"reliability_spearman","value":0.1063,"ci95":null,"n":32,"provenance":"CLEAN"},{"dataset":"Norman_K562","setting":"single_context","predictor":"prescribe_gears_backbone","uq_method":"prescribe_intrinsic","metric":"aurc","value":0.1327,"ci95":null,"n":32,"provenance":"UNKNOWN-OVERLAP"},{"dataset":"Norman_K562","setting":"single_context","predictor":"prescribe_gears_backbone","uq_method":"prescribe_intrinsic","metric":"reliability_spearman","value":0.2225,"ci95":null,"n":32,"provenance":"UNKNOWN-OVERLAP"},{"dataset":"Norman_K562","setting":"single_context","predictor":"prescribe_gears_backbone","uq_method":"oracle","metric":"aurc","value":0.0987,"ci95":null,"n":32,"provenance":"CLEAN"},{"dataset":"Norman_K562","setting":"single_context","predictor":"prescribe_gears_backbone","uq_method":"no_selection","metric":"aurc","value":0.1542,"ci95":null,"n":32,"provenance":"CLEAN"}];
+
+let ROWS = STATIC_ROWS;
+const tbody = document.querySelector("#bench tbody");
+const statusEl = document.getElementById("status");
+
+function fmt(v){ return (v === null || v === undefined) ? "" : String(v); }
+
+function fillSelect(id, key){
+  const sel = document.getElementById(id);
+  const seen = [];
+  for (const r of ROWS){ if (seen.indexOf(r[key]) === -1) seen.push(r[key]); }
+  seen.sort();
+  for (const v of seen){
+    const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o);
+  }
+  sel.addEventListener("change", render);
+}
+
+function currentRows(){
+  const ds = document.getElementById("fds").value;
+  const st = document.getElementById("fset").value;
+  const mt = document.getElementById("fmet").value;
+  return ROWS.filter(r =>
+    (!ds || r.dataset === ds) && (!st || r.setting === st) && (!mt || r.metric === mt));
+}
+
+function render(){
+  const rows = currentRows();
+  tbody.innerHTML = "";
+  for (const r of rows){
+    const tr = document.createElement("tr");
+    if (r.uq_method === "pertema") tr.className = "pertema-row";
+    const flagClass = r.provenance === "CLEAN" ? "clean" : "overlap";
+    tr.innerHTML =
+      "<td>" + fmt(r.dataset) + "</td>" +
+      "<td>" + fmt(r.setting) + "</td>" +
+      "<td>" + fmt(r.predictor) + "</td>" +
+      "<td>" + fmt(r.uq_method) + "</td>" +
+      "<td>" + fmt(r.metric) + "</td>" +
+      "<td class='num'>" + fmt(r.value) + "</td>" +
+      "<td class='num'>" + fmt(r.ci95) + "</td>" +
+      "<td class='num'>" + fmt(r.n) + "</td>" +
+      "<td><span class='flag " + flagClass + "'>" + fmt(r.provenance) + "</span></td>";
+    tbody.appendChild(tr);
+  }
+  statusEl.textContent = statusEl.dataset.src + " Showing " + rows.length + " of " + ROWS.length + " rows.";
+}
+
+function toCSV(rows){
+  const cols = ["dataset","setting","predictor","uq_method","metric","value","ci95","n","provenance"];
+  const lines = [cols.join(",")];
+  for (const r of rows){
+    lines.push(cols.map(c => { const v = r[c]; return (v === null || v === undefined) ? "" : v; }).join(","));
+  }
+  return lines.join("\n");
+}
+
+document.getElementById("dlcsv").addEventListener("click", function(){
+  const blob = new Blob([toCSV(currentRows())], {type: "text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "benchmark_reliability.csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+function init(){
+  fillSelect("fds", "dataset");
+  fillSelect("fset", "setting");
+  fillSelect("fmet", "metric");
+  render();
+}
+
+// Try to stay in sync with the live artifact; fall back to the baked table with a clear note.
+fetch("data/benchmark/benchmark.json", {headers: {"Accept": "application/json"}})
+  .then(r => { if (!r.ok) throw new Error("no live table"); return r.json(); })
+  .then(data => {
+    if (Array.isArray(data) && data.length){ ROWS = data; statusEl.dataset.src = "Live table from /benchmark.json."; }
+    else { statusEl.dataset.src = "Static fallback table (baked into this page from the frozen benchmark CSV)."; }
+    init();
+  })
+  .catch(() => {
+    statusEl.dataset.src = "Static fallback table (baked into this page; the live /benchmark.json was not reachable).";
+    init();
+  });
+</script>
+</body>
+</html>

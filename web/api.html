@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PertEMA - API</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230072B2'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23fff'/%3E%3Crect x='3' y='6.5' width='7.5' height='2' fill='%23A7DFF0'/%3E%3Crect x='3' y='10' width='5' height='2' fill='%23E69F00'/%3E%3C/svg%3E">
+<style>
+  :root{--bg:#fbfbfd;--fg:#1a1a1f;--muted:#666;--line:#e2e2e8;--accent:#0072B2;}
+  body{margin:0;font:15.5px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);background:var(--bg)}
+  main{max-width:820px;margin:0 auto;padding:32px 28px 60px}
+  h1{font-size:24px;margin:0 0 6px}
+  h2{font-size:17px;margin:26px 0 6px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  a{color:var(--accent)} code{background:#f2f2f6;padding:1px 5px;border-radius:4px;font-size:13px}
+  pre{background:#1c1c22;color:#e8e8ec;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:12.5px;line-height:1.5}
+  .muted{color:var(--muted)} p{margin:8px 0}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:5px 8px;text-align:left} th{background:#f2f2f6}
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a6270; --card:#f6f8fa; --border:#e3e7ec; --accent:#0072B2;
+    --band-high:#0072B2; --band-moderate:#009E73; --band-low:#E69F00; --band-verylow:#D55E00;
+  }
+  body{ background:var(--bg); color:var(--fg); }
+  .site-nav{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:1rem;
+    padding:.6rem 1rem; background:var(--card); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .site-nav .brand{ font-weight:700; color:var(--accent); text-decoration:none; font-size:1.05rem; letter-spacing:.02em; }
+  .site-nav nav{ display:flex; gap:.9rem; flex-wrap:wrap; margin-left:auto; }
+  .site-nav nav a{ color:var(--fg); text-decoration:none; font-size:.92rem; opacity:.85; }
+  .site-nav nav a:hover{ opacity:1; }
+  .site-nav nav a.active{ color:var(--accent); font-weight:600; opacity:1; border-bottom:2px solid var(--accent); }
+  .site-footer{ margin-top:2.5rem; padding:1rem; border-top:1px solid var(--border); color:var(--muted);
+    font-size:.85rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+  .site-footer .ver{ font-family:ui-monospace,Menlo,Consolas,monospace; background:var(--card);
+    border:1px solid var(--border); border-radius:4px; padding:.1rem .4rem; }
+</style>
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="index.html">PertEMA</a>
+  <nav>
+    <a href="index.html">Tool</a>
+    <a href="methods.html">Methods</a>
+    <a href="interpret.html">Interpret</a>
+    <a href="model_card.html">Model card</a>
+    <a href="benchmark.html">Benchmark</a>
+    <a href="api.html" class="active" aria-current="page">API</a>
+    <a href="faq.html">FAQ</a>
+  </nav>
+</header>
+<main>
+  <h1>REST API</h1>
+  <p>This hosted app runs the scoring pipeline <b>entirely in your browser</b>, so there is no live REST endpoint to call here.
+     The endpoints below document the equivalent <b>self-hosted</b> API: run the open-source FastAPI backend
+     (<a href="https://github.com/OfficialBishal/PertEMA" target="_blank" rel="noopener">github.com/OfficialBishal/PertEMA</a>)
+     and the interactive schema is served at <code>/docs</code> (Swagger), <code>/redoc</code>, and <code>/openapi.json</code>. All
+     scoring is post hoc and leakage-safe: the shipped estimator is never retrained on your ground truth.</p>
+
+  <h2>Endpoints</h2>
+  <table><thead><tr><th>method</th><th>path</th><th>what it does</th></tr></thead><tbody>
+    <tr><td>GET</td><td>/health, /version</td><td>liveness and the provenance stamp (model version, build commit)</td></tr>
+    <tr><td>POST</td><td>/score</td><td>reliability, band, and conformal interval for an (n, 64) feature matrix (batches in one call)</td></tr>
+    <tr><td>POST</td><td>/explain</td><td>per-perturbation grouped feature attribution toward predicted error</td></tr>
+    <tr><td>POST</td><td>/ingest_score</td><td>parse, featurize, score, and explain a long-format predictions CSV</td></tr>
+    <tr><td>POST</td><td>/evaluate</td><td>realized reliability quality against YOUR out-of-sample ground truth (no retraining)</td></tr>
+    <tr><td>POST</td><td>/report</td><td>a self-contained, provenance-stamped HTML report for a predictions CSV</td></tr>
+    <tr><td>GET</td><td>/template, /example, /benchmark, /transfer_heatmap</td><td>the CSV template, the bundled example, the open benchmark table, the transfer-difficulty matrix</td></tr>
+  </tbody></table>
+
+  <h2>Authentication</h2>
+  <p>Open by default so the demo runs without setup. Set <code>PERTEMA_API_TOKEN</code> on the server to require
+     a bearer token on the scoring endpoints. Requests then need <code>Authorization: Bearer &lt;token&gt;</code>
+     and return <code>401</code> without it. CORS is locked to <code>PERTEMA_CORS_ORIGINS</code>.</p>
+
+  <h2>curl</h2>
+  <pre># score a predictions CSV end to end
+curl -s http://localhost:8000/ingest_score \
+  -H 'Content-Type: application/json' \
+  -d '{"csv":"perturbed_gene,gene,predicted_lfc\nIL2,IL2RA,0.83\nIL2,IFNG,-0.21\nSTAT5A,MYC,0.30\n"}'
+
+# score a raw (n, 64) feature matrix, with a token if the server is protected
+curl -s http://localhost:8000/score \
+  -H 'Content-Type: application/json' -H 'Authorization: Bearer <token>' \
+  -d '{"features": [[0.4, 0.0, ... 64 values ...]]}'
+
+# download a self-contained HTML report
+curl -s http://localhost:8000/report \
+  -H 'Content-Type: application/json' \
+  -d @my_predictions.json > report.html</pre>
+
+  <h2>Python client (standard library, no install)</h2>
+  <p>Copy <code>app/client/pertema_client.py</code> and use it directly.</p>
+  <pre>from pertema_client import PertEMA
+
+api = PertEMA("http://localhost:8000")          # reads PERTEMA_API_TOKEN from the env if set
+out = api.ingest_csv(open("my_predictions.csv").read())
+for gene, r in zip(out["genes"], out["results"]):
+    print(gene, round(r["reliability"], 3), r["band"])
+
+# measure realized quality on your OWN out-of-sample ground truth (never retrains the model)
+q = api.evaluate(features, true_error)
+print(q["spearman_reliability_vs_accuracy"], q["risk_coverage_auc"])</pre>
+
+  <h2>Batch</h2>
+  <p><code>/score</code> and <code>/explain</code> take an (n, 64) matrix and score every row in one call, up to
+     <code>PERTEMA_MAX_ROWS</code> (default 200000). Larger jobs should be split into batches. Malformed input
+     returns <code>422</code> and oversized input <code>413</code>, never a crash.</p>
+
+  <h2>Performance</h2>
+  <p>Scoring is CPU-only and fast: the frozen gradient-boosted tree plus isotonic calibration and the conformal
+     interval score about 48,000 perturbations per second at a batch of 100 and over 450,000 per second at a
+     batch of 10,000 (10,000 perturbations in roughly 22 ms, measured on the reference host). Single-request
+     latency is a couple of milliseconds. The frozen model and the bundled reference are loaded once at
+     startup, so there is no per-request model-load cost. Batch your requests for the best throughput.</p>
+</main>
+<footer class="site-footer">
+  <span class="ver">model v0.1.0</span>
+  <span>Reliability layer, not a predictor. SHAP attribution explains the estimator, not biological importance.</span>
+  <a href="methods.html">Methods</a>
+  <a href="model_card.html">Model card</a>
+  <a href="api.html">API</a>
+</footer>
+</body>
+</html>

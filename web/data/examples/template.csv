@@ -1,0 +1,8 @@
+perturbed_gene,gene,predicted_lfc,src_context,dst_context
+IL2,IL2RA,0.83,Rest,Stim48hr
+IL2,IFNG,-0.21,Rest,Stim48hr
+IL2,FOXP3,0.11,Rest,Stim48hr
+STAT5A,IL2RA,0.44,Rest,Stim48hr
+STAT5A,MYC,0.30,Rest,Stim48hr
+# one row per (perturbed_gene, gene). predicted_lfc is your model's predicted delta log-fold-change.
+# src_context/dst_context are optional and must be Rest, Stim8hr, or Stim48hr (default Rest -> Stim48hr).

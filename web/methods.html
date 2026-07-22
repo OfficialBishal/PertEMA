@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PertEMA - Methods</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230072B2'/%3E%3Crect x='3' y='3' width='10' height='2' fill='%23fff'/%3E%3Crect x='3' y='6.5' width='7.5' height='2' fill='%23A7DFF0'/%3E%3Crect x='3' y='10' width='5' height='2' fill='%23E69F00'/%3E%3C/svg%3E">
+<style>
+  body{margin:0;font:15.5px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1a1a1f;background:#fbfbfd}
+  main{max-width:820px;margin:0 auto;padding:32px 28px 60px}
+  h1{font-size:24px;margin:0 0 6px} h2{font-size:18px;margin:30px 0 8px;border-bottom:1px solid #e2e2e8;padding-bottom:5px}
+  a{color:#0072B2} code{background:#f2f2f6;padding:1px 5px;border-radius:4px;font-size:13px}
+  .muted{color:#666} .neg{color:#8a3b12} ol{padding-left:22px} li{margin:5px 0}
+  .box{background:#fff;border:1px solid #e2e2e8;border-radius:10px;padding:14px 18px;margin:12px 0}
+  :root{
+    --bg:#ffffff; --fg:#1a1a1a; --muted:#5a6270; --card:#f6f8fa; --border:#e3e7ec; --accent:#0072B2;
+    --band-high:#0072B2; --band-moderate:#009E73; --band-low:#E69F00; --band-verylow:#D55E00;
+  }
+  body{ background:var(--bg); color:var(--fg); }
+  .site-nav{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:1rem;
+    padding:.6rem 1rem; background:var(--card); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .site-nav .brand{ font-weight:700; color:var(--accent); text-decoration:none; font-size:1.05rem; letter-spacing:.02em; }
+  .site-nav nav{ display:flex; gap:.9rem; flex-wrap:wrap; margin-left:auto; }
+  .site-nav nav a{ color:var(--fg); text-decoration:none; font-size:.92rem; opacity:.85; }
+  .site-nav nav a:hover{ opacity:1; }
+  .site-nav nav a.active{ color:var(--accent); font-weight:600; opacity:1; border-bottom:2px solid var(--accent); }
+  .site-footer{ margin-top:2.5rem; padding:1rem; border-top:1px solid var(--border); color:var(--muted);
+    font-size:.85rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; }
+  .site-footer .ver{ font-family:ui-monospace,Menlo,Consolas,monospace; background:var(--card);
+    border:1px solid var(--border); border-radius:4px; padding:.1rem .4rem; }
+</style>
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="index.html">PertEMA</a>
+  <nav>
+    <a href="index.html">Tool</a>
+    <a href="methods.html" class="active" aria-current="page">Methods</a>
+    <a href="interpret.html">Interpret</a>
+    <a href="model_card.html">Model card</a>
+    <a href="benchmark.html">Benchmark</a>
+    <a href="api.html">API</a>
+    <a href="faq.html">FAQ</a>
+  </nav>
+</header>
+<main>
+  <h1>PertEMA: methods and honest scope</h1>
+  <p>PertEMA is a post-hoc, model-agnostic reliability estimator. It wraps any single-cell perturbation
+     predictor and predicts the per-perturbation error of its outputs from prediction-time features only, so it
+     can say which predictions to trust. It is a reliability layer, not a predictor, and it does not identify
+     biologically important genes.</p>
+
+  <h2>Why a reliability layer</h2>
+  <p>Two 2025 benchmark papers showed that deep perturbation predictors often do not beat a trivial mean
+     baseline. We reproduced that on our own roster of twelve predictors: six trained-from-scratch (constant
+     mean, linear ridge, a nonlinear MLP, local kNN, no-change) and six frozen-adapted foundation-model
+     predictors (ridge and kNN heads over the pretrained gene embeddings of Geneformer, scGPT, and gene2vec).
+     None beats the per-condition mean baseline, and the best foundation predictor comes closest at 1.001 times
+     the mean error but still loses. The useful next question is not a better predictor but a calibrated way to
+     say which predictions are worth acting on.</p>
+
+  <h2>How it works</h2>
+  <p>A gradient-boosted tree is trained on a predictor's out-of-fold errors on gene-disjoint splits, using only
+     prediction-time features (predicted effect magnitude, control-state baseline expression and dropout, a
+     co-expression embedding, source and destination context indicators, and training-set similarity). No
+     quantity derived from a test perturbation's true effect is ever a feature. The predicted error is
+     recalibrated with isotonic regression and wrapped in a split-conformal interval.</p>
+
+  <h2>What we show (measured)</h2>
+  <ul>
+    <li>It ranks realized error above simple heuristics, a deep-ensemble intrinsic uncertainty, and no
+        selection across three transfer settings, with clean negative controls.</li>
+    <li>The clearest result is external and cross-cell-line: on the Replogle K562-to-RPE1 screens it closes 58
+        percent of the gap between no selection and a perfect oracle (Spearman 0.567).</li>
+    <li>Calibration: isotonic expected calibration error 0.008 to 0.003, split-conformal empirical coverage
+        0.900 at a 0.90 target.</li>
+    <li>Ranking a validation shortlist by reliability yields a more reproducible shortlist than the default
+        effect-magnitude ranking.</li>
+  </ul>
+
+  <h2 class="neg">What we do NOT claim (reported plainly)</h2>
+  <div class="box neg">
+    <ul>
+      <li>PertEMA does NOT recover known CD4 and IL-2 regulators better than a trivial magnitude heuristic.
+          Reliability and biological importance are different axes.</li>
+      <li>A routing procedure that picks the most-reliable predictor per perturbation does NOT beat the best
+          single predictor, on either the noisy primary data or the cleaner external Replogle axis. Reliability
+          enables selective abstention (a within-predictor ranking, which works) but not predictor routing (a
+          cross-predictor comparison, which fails on both axes).</li>
+      <li>Gains on the noisy primary data are small and are reported against the measured accuracy ceiling
+          (cross-donor Pearson about 0.73 on hit genes, 0.11 on all genes). On single-context Norman,
+          PRESCRIBE's intrinsic uncertainty beats PertEMA.</li>
+      <li>The frozen-adapted foundation-model predictors (Geneformer, scGPT, gene2vec) carry an UNKNOWN-OVERLAP
+          pretraining-provenance flag, so possible memorization of a benchmark dataset is never mistaken for
+          clean generalization. Even with that caveat in their favor, none beat the mean baseline.</li>
+    </ul>
+  </div>
+
+  <h2>The contribution</h2>
+  <p>A standardized open reliability benchmark for perturbation prediction, scoring uncertainty-quantification
+     methods across datasets and context-transfer settings with provenance flags, plus this self-hostable tool.
+     See the <a href="benchmark.html">benchmark</a>.</p>
+
+  <h2>How to cite</h2>
+  <p>No preprint DOI exists yet. Manuscript in preparation. Until a DOI is available, cite PertEMA by tool
+     name and version 0.1.0 using the entry below.</p>
+  <pre style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto;font-size:12.5px;line-height:1.5"><code>@software{pertema_v0_1_0,
+  title   = {PertEMA: a post-hoc reliability estimator for single-cell perturbation predictors},
+  author  = {The PertEMA developers},
+  year    = {2026},
+  version = {0.1.0},
+  note    = {Manuscript in preparation}
+}</code></pre>
+
+  <h2>Citations</h2>
+  <ol>
+    <li>Ahlmann-Eltze C, Huber W, Anders S. Deep-learning-based gene perturbation effect prediction does not
+        yet outperform simple linear baselines. Nature Methods. 2025. doi:10.1038/s41592-025-02772-6.</li>
+    <li>Wong D, Hill A, Moccia R. Perturb-seq prediction benchmark. Bioinformatics. 2025, 41(6):btaf317.
+        doi:10.1093/bioinformatics/btaf317.</li>
+    <li>Cheng J, et al. PRESCRIBE: Predicting Single-Cell Responses with Bayesian Estimation. NeurIPS 2025.
+        arXiv:2510.07964.</li>
+    <li>Xing H, Yau C. GPerturb: Gaussian process modelling of single-cell perturbation data. Nature
+        Communications. 2025. doi:10.1038/s41467-025-61165-7.</li>
+    <li>Angelopoulos AN, Bates S. A Gentle Introduction to Conformal Prediction. Foundations and Trends in
+        Machine Learning. 2021. arXiv:2107.07511.</li>
+  </ol>
+  <p class="muted">Full reference list and traceable numbers: see the manuscript and results/ in the repository.</p>
+</main>
+<footer class="site-footer">
+  <span class="ver">model v0.1.0</span>
+  <span>Reliability layer, not a predictor. SHAP attribution explains the estimator, not biological importance.</span>
+  <a href="methods.html">Methods</a>
+  <a href="model_card.html">Model card</a>
+  <a href="api.html">API</a>
+</footer>
+</body>
+</html>

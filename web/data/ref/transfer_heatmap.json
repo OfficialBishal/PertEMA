@@ -1,0 +1,1 @@
+{"conditions":["Rest","Stim8hr","Stim48hr"],"matrix":[[0.8255,0.8853,0.8914],[0.8952,0.8033,0.8762],[0.8836,0.8545,0.8319]],"note":"mean 1 - Pearson error, lower is easier. Diagonal is within-context; off-diagonal is context transfer. Resting-to-stimulated transfers are hardest, matching the larger transcriptional change on activation."}
