@@ -1,0 +1,24 @@
+# Changelog
+
+All notable changes to this project are documented here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project aims to follow
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Citation metadata (`CITATION.cff`) so the tool can be cited directly.
+- Contributor guide, code of conduct, and security policy (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`,
+  `SECURITY.md`).
+- Continuous integration: the scoring-core and end-to-end API tests run on every push and pull request
+  (`.github/workflows/ci.yml`).
+
+## [0.1.0]
+
+### Added
+- Initial public release of the PertEMA reliability estimator: a model-agnostic, post-hoc reliability layer for
+  single-cell perturbation-effect predictors, using a gradient-boosted meta-model over leakage-safe,
+  prediction-time features with isotonic calibration and split-conformal intervals.
+- A self-hostable FastAPI service that scores a predictor's outputs and reports reliability bands, calibrated
+  error, split-conformal intervals, grouped SHAP attribution, a risk-coverage view, and a downloadable report.
+- The committed frozen model, the reproducible figures and tables, and the CPU reproduction path.

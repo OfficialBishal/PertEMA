@@ -116,3 +116,28 @@ out-of-fold errors and re-freeze with `pixi run freeze-model`.
 The analyzed datasets are public releases used under their own terms: the primary CD4 T cell Perturb-seq screen
 (openRxiv, DOI 10.64898/2025.12.23.696273), Replogle 2022 (DOI 10.1038/s41588-022-01066-3), Norman 2019
 (DOI 10.1126/science.aax4438), and Adamson 2016 (DOI 10.1016/j.cell.2016.11.048).
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up, run the tests, and propose
+a change, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for the community standards.
+
+## Citation
+
+If you use PertEMA, please cite the software (there is no accompanying paper yet):
+
+> Bishal Shrestha. *PertEMA: Perturbation Error Meta-Assessment* (Version 0.1.0) [Computer software]. 2026.
+> https://github.com/OfficialBishal/PertEMA
+
+```bibtex
+@software{shrestha_pertema_2026,
+  author  = {Shrestha, Bishal},
+  title   = {{PertEMA}: Perturbation Error Meta-Assessment},
+  year    = {2026},
+  version = {0.1.0},
+  url     = {https://github.com/OfficialBishal/PertEMA}
+}
+```
+
+GitHub's "Cite this repository" button (generated from [CITATION.cff](CITATION.cff)) produces APA and BibTeX
+automatically.
