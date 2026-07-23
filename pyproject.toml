@@ -37,12 +37,21 @@ dependencies = [
 app = ["fastapi", "uvicorn", "httpx", "python-multipart"]
 test = ["pytest"]
 docs = ["mkdocs>=1.6", "mkdocs-material>=9.5"]
+lint = ["ruff"]
 
 [project.scripts]
 pertema = "pertema.cli:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint.per-file-ignores]
+# the FastAPI service uses a sys.path shim before its imports; the API test script uses compact assertions
+"app/backend/main.py" = ["E402"]
+"app/backend/test_api.py" = ["E702"]
 
 [project.urls]
 Homepage = "https://github.com/OfficialBishal/PertEMA"

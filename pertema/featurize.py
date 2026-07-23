@@ -30,7 +30,8 @@ class Featurizer:
         self.ens2sym = dict(zip(gm["ensembl"], gm["symbol"]))
         self.ens_set = set(self.gene_col) | set(self.emb)
         # training-set similarity: nearest OTHER embedded gene, precomputed for every embedded gene
-        genes = np.array(list(self.emb)); X = np.array([self.emb[g] for g in genes])
+        genes = np.array(list(self.emb))
+        X = np.array([self.emb[g] for g in genes])
         nn = NearestNeighbors(n_neighbors=2, algorithm="brute", n_jobs=8).fit(X)
         d, _ = nn.kneighbors(X)
         self._sim = {g: float(d[i, 1]) for i, g in enumerate(genes)}
@@ -75,9 +76,11 @@ class Featurizer:
             ens = self._to_ens(p["perturbed_gene"])
             src, dst = str(p["src"]), str(p["dst"])
             if src not in self.cond_idx or dst not in self.cond_idx:
-                bad_ctx.append((p["perturbed_gene"], src, dst)); continue
+                bad_ctx.append((p["perturbed_gene"], src, dst))
+                continue
             if ens is None:
-                unmapped.append(str(p["perturbed_gene"])); continue
+                unmapped.append(str(p["perturbed_gene"]))
+                continue
             gi = self.gene_col.get(ens)
             f = [float(p["pred_magnitude"])]
             for tag in (src, dst):
@@ -90,7 +93,8 @@ class Featurizer:
             e = self.emb.get(ens, np.full(EMB_DIM, np.nan))
             f.extend([float(x) for x in e])
             f.append(self._sim_of(ens))
-            rows.append(f); syms.append(str(p["perturbed_gene"]))
+            rows.append(f)
+            syms.append(str(p["perturbed_gene"]))
         X = np.array(rows, dtype=np.float32) if rows else np.zeros((0, 64), np.float32)
         report = {
             "n_input": len(predictions), "n_featurized": len(rows),

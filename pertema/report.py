@@ -66,8 +66,8 @@ def _risk_coverage_line(results):
     pct = 100.0 * reliable / n
     cap = max((r["calibrated_error"] for r in results if r["band"] in ("high", "moderate")), default=None)
     if reliable == 0:
-        return (f"No predictions land in the high or moderate bands, so none clear the 0.88 calibrated-error "
-                f"(1 - Pearson) reliability threshold on this run.")
+        return ("No predictions land in the high or moderate bands, so none clear the 0.88 calibrated-error "
+                "(1 - Pearson) reliability threshold on this run.")
     return (f"Keeping the {reliable} of {n} predictions in the high or moderate bands ({pct:.0f}% coverage) "
             f"holds predicted calibrated error at or below {cap:.3f} (1 - Pearson, lower is better).")
 

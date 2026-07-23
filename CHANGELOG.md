@@ -27,6 +27,12 @@ All notable changes to this project are documented here. The format follows
   `SECURITY.md`).
 - Continuous integration: the scoring-core and end-to-end API tests run on every push and pull request
   (`.github/workflows/ci.yml`).
+- Ruff linting of the tool code, enforced in CI, with a documented per-file-ignore for the service's
+  intentional import ordering and the API test script's compact assertions.
+
+### Changed
+- Reformatted a few compact multi-statement lines in the core and dropped two placeholder-free f-string
+  prefixes so the `pertema` package passes ruff with no per-file exceptions. No behavior change.
 
 ## [0.1.0]
 
