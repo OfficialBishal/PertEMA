@@ -57,3 +57,6 @@ video/assets/
 
 # build artifacts
 *.egg-info/
+
+# mkdocs build output
+site/

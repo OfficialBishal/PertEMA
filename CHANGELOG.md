@@ -15,6 +15,8 @@ All notable changes to this project are documented here. The format follows
   (`pyproject.toml`). The scoring core (scoring, featurization, ingestion, report) moved from `app/backend/`
   into the package, the FastAPI service and tests now import it, and the model location can be overridden with
   the `PERTEMA_MODEL_DIR` environment variable.
+- A documentation site: a MkDocs Material configuration (`mkdocs.yml`) and a readthedocs build
+  (`.readthedocs.yaml`, `docs/requirements.txt`) that render the `docs/` pages into a browsable site.
 - User documentation under `docs/`: a quickstart and an interpreting-reliability concept page, linked from the
   README.
 - A draft software paper (`paper/paper.md`, `paper/paper.bib`) with a statement of need and a state-of-the-field

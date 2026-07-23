@@ -1,0 +1,28 @@
+site_name: PertEMA
+site_description: Post-hoc reliability estimation for single-cell perturbation prediction
+site_url: https://pertema.readthedocs.io/
+repo_url: https://github.com/OfficialBishal/PertEMA
+repo_name: OfficialBishal/PertEMA
+docs_dir: docs
+
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: teal
+    accent: teal
+  features:
+    - navigation.top
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Interpreting reliability: interpreting_reliability.md
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
