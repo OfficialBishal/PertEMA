@@ -54,3 +54,6 @@ results/loop/
 
 # demo reel intermediate PNGs (regenerable; embedded base64 in the html)
 video/assets/
+
+# build artifacts
+*.egg-info/

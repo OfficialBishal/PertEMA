@@ -46,6 +46,21 @@ scored = model.score(features)       # per-row calibrated error, reliability ban
 
 Set `PERTEMA_MODEL_DIR` to point at a model refit on your own screen to score against it instead.
 
+## Command line
+
+Installing the package also provides a `pertema` command:
+
+```
+pertema score predictions.csv          # write a results CSV to stdout
+pertema score predictions.csv --json   # or JSON
+cat predictions.csv | pertema score -   # read from stdin
+pertema example                         # score the bundled example predictions
+```
+
+Each result row has the perturbation, its reliability score, calibrated error, band, and 90 percent conformal
+interval, plus the top attribution driver. A one-line summary (perturbations scored, fraction of genes mapped,
+model version) is written to standard error, so it does not mix into piped output.
+
 ## Score your own predictions
 
 Start the service and open it in a browser:

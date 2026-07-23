@@ -36,6 +36,9 @@ dependencies = [
 [project.optional-dependencies]
 app = ["fastapi", "uvicorn", "httpx", "python-multipart"]
 
+[project.scripts]
+pertema = "pertema.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/OfficialBishal/PertEMA"
 Repository = "https://github.com/OfficialBishal/PertEMA"

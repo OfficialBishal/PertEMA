@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- A `pertema` command-line interface: `pertema score <csv>` (CSV or JSON output, reads a file or stdin) and
+  `pertema example`, installed as a console script and runnable with `python -m pertema`.
 - An importable `pertema` package with a public API (`import pertema`), installable with `pip install -e .`
   (`pyproject.toml`). The scoring core (scoring, featurization, ingestion, report) moved from `app/backend/`
   into the package, the FastAPI service and tests now import it, and the model location can be overridden with
