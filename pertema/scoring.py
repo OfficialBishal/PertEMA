@@ -103,7 +103,7 @@ class PertEMAModel:
             })
         return out
 
-    def evaluate(self, features, true_error):
+    def evaluate(self, features: np.ndarray, true_error: np.ndarray) -> dict:
         """Score features and, using the user's OWN ground truth, report the realized reliability QUALITY.
 
         Never refits or retrains the estimator (inviolable invariant: no training on user truth). The

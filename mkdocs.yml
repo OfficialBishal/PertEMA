@@ -15,10 +15,22 @@ theme:
     - navigation.top
     - content.code.copy
 
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            show_root_heading: true
+            show_source: false
+            members_order: source
+
 nav:
   - Home: index.md
   - Quickstart: quickstart.md
   - Interpreting reliability: interpreting_reliability.md
+  - API reference: api.md
 
 markdown_extensions:
   - admonition

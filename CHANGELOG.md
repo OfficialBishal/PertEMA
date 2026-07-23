@@ -17,6 +17,7 @@ All notable changes to this project are documented here. The format follows
   the `PERTEMA_MODEL_DIR` environment variable.
 - A documentation site: a MkDocs Material configuration (`mkdocs.yml`) and a readthedocs build
   (`.readthedocs.yaml`, `docs/requirements.txt`) that render the `docs/` pages into a browsable site.
+- An API reference page in the documentation, generated from the source docstrings with mkdocstrings.
 - User documentation under `docs/`: a quickstart and an interpreting-reliability concept page, linked from the
   README.
 - A draft software paper (`paper/paper.md`, `paper/paper.bib`) with a statement of need and a state-of-the-field
