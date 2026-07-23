@@ -35,9 +35,13 @@ dependencies = [
 
 [project.optional-dependencies]
 app = ["fastapi", "uvicorn", "httpx", "python-multipart"]
+test = ["pytest"]
 
 [project.scripts]
 pertema = "pertema.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [project.urls]
 Homepage = "https://github.com/OfficialBishal/PertEMA"

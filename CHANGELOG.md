@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- A pytest unit-test suite under `tests/` covering the package API, ingestion, featurization, and the
+  command-line interface, wired into CI (`pytest tests/`).
 - A `pertema` command-line interface: `pertema score <csv>` (CSV or JSON output, reads a file or stdin) and
   `pertema example`, installed as a console script and runnable with `python -m pertema`.
 - An importable `pertema` package with a public API (`import pertema`), installable with `pip install -e .`
