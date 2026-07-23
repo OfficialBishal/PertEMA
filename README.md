@@ -36,6 +36,12 @@ it is, using a gradient-boosted-tree meta-model with isotonic calibration and sp
 trained only on leakage-safe, prediction-time features. It is a reliability layer, not a predictor, and it does
 not rank biological importance.
 
+## Documentation
+
+- [Quickstart](docs/quickstart.md): install, run the bundled example, and score your own predictor's outputs.
+- [Interpreting reliability](docs/interpreting_reliability.md): the reliability score, the bands, the conformal
+  interval, and the honest scope of the tool.
+
 ## Interactive demo (web app)
 
 So others can apply the finding, the estimator is wrapped in a small self-hostable demo: a FastAPI backend plus

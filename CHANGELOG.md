@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- User documentation under `docs/`: a quickstart and an interpreting-reliability concept page, linked from the
+  README.
 - A draft software paper (`paper/paper.md`, `paper/paper.bib`) with a statement of need and a state-of-the-field
   section that presents the mean-baseline result as metric-dependent and cites the debate.
 - Citation metadata (`CITATION.cff`) so the tool can be cited directly.
