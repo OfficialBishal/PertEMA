@@ -7,6 +7,10 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- An importable `pertema` package with a public API (`import pertema`), installable with `pip install -e .`
+  (`pyproject.toml`). The scoring core (scoring, featurization, ingestion, report) moved from `app/backend/`
+  into the package, the FastAPI service and tests now import it, and the model location can be overridden with
+  the `PERTEMA_MODEL_DIR` environment variable.
 - User documentation under `docs/`: a quickstart and an interpreting-reliability concept page, linked from the
   README.
 - A draft software paper (`paper/paper.md`, `paper/paper.bib`) with a statement of need and a state-of-the-field

@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pertema"
+version = "0.1.0"
+description = "Post-hoc reliability estimation for single-cell perturbation prediction"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Bishal Shrestha" }]
+keywords = [
+  "single-cell",
+  "perturbation prediction",
+  "Perturb-seq",
+  "uncertainty quantification",
+  "conformal prediction",
+  "calibration",
+  "selective prediction",
+]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+  "numpy",
+  "scipy",
+  "pandas",
+  "scikit-learn",
+  "xgboost",
+]
+
+[project.optional-dependencies]
+app = ["fastapi", "uvicorn", "httpx", "python-multipart"]
+
+[project.urls]
+Homepage = "https://github.com/OfficialBishal/PertEMA"
+Repository = "https://github.com/OfficialBishal/PertEMA"
+Documentation = "https://github.com/OfficialBishal/PertEMA/tree/main/docs"
+
+[tool.setuptools]
+packages = ["pertema"]

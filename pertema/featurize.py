@@ -107,5 +107,8 @@ class Featurizer:
 
 
 def default_featurizer():
+    """Load the featurizer's reference data from the bundled model. Override with PERTEMA_MODEL_DIR."""
     here = os.path.dirname(os.path.abspath(__file__))
-    return Featurizer(os.path.join(here, "..", "model", "pertema_model_v0.1.0", "reference"))
+    base = os.environ.get("PERTEMA_MODEL_DIR") or os.path.join(
+        here, "..", "app", "model", "pertema_model_v0.1.0")
+    return Featurizer(os.path.join(base, "reference"))

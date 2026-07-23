@@ -11,8 +11,8 @@ import numpy as np
 from scipy.stats import spearmanr
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-from scoring import BANDS, default_model   # noqa: E402
+sys.path.insert(0, os.path.abspath(os.path.join(HERE, "..", "..")))   # repo root, so `import pertema` resolves
+from pertema import BANDS, default_model   # noqa: E402
 
 
 def main():

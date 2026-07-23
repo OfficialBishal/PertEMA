@@ -112,8 +112,10 @@ out-of-fold errors and re-freeze with `pixi run freeze-model`.
 
 ## Layout
 
-- `src/` pipeline: data, evaluation, the PertEMA estimator, figures, tables.
-- `app/` the web application: backend, frontend, frozen model, Python client, deploy.
+- `pertema/` the importable reliability package: scoring, featurization, ingestion, and the report renderer,
+  with the public API at the top level (`import pertema`). Installable with `pip install -e .`.
+- `src/` the research pipeline: data, evaluation, figures, tables.
+- `app/` the web application: the FastAPI backend (which imports `pertema`), frontend, frozen model, client, deploy.
 - `results/` committed result files, the numeric backbone of every claim.
 - `figures/paper/` vector figures with per-figure `source_data/`.
 

@@ -14,7 +14,8 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)   # so `from scoring import ...` works however uvicorn launches this module
+REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
+sys.path.insert(0, REPO)   # so `import pertema` resolves when the app is run from the repo without an install
 
 import numpy as np
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -23,10 +24,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from fastapi.responses import HTMLResponse, PlainTextResponse
-from scoring import BANDS, FEATURE_GROUPS, default_model
-from featurize import default_featurizer
-from ingest import LONG_TEMPLATE, parse_long_csv
-from report import render_report
+from pertema import (BANDS, FEATURE_GROUPS, default_model, default_featurizer,
+                     LONG_TEMPLATE, parse_long_csv, render_report)
 MODEL = default_model()
 FEATURIZER = default_featurizer()
 CEILING = MODEL.provenance["measured_accuracy_ceiling_1minus_pearson"]

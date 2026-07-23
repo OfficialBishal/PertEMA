@@ -29,6 +29,23 @@ pixi run score-test
 Expected output reports the model version, the number of perturbations scored, the calibration coverage, and
 the reliability-band distribution.
 
+## Use as a library
+
+Install the package and score a feature matrix directly:
+
+```
+pip install -e .
+```
+
+```python
+import pertema
+
+model = pertema.default_model()      # the bundled demonstration model
+scored = model.score(features)       # per-row calibrated error, reliability band, and conformal interval
+```
+
+Set `PERTEMA_MODEL_DIR` to point at a model refit on your own screen to score against it instead.
+
 ## Score your own predictions
 
 Start the service and open it in a browser:

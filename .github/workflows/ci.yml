@@ -19,6 +19,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install numpy==1.26.4 scipy==1.17.1 pandas==3.0.1 scikit-learn==1.8.0 xgboost==3.2.0 \
                       fastapi uvicorn httpx python-multipart
+          pip install -e . --no-deps
+      - name: Import the package
+        run: python -c "import pertema; print(pertema.__version__)"
       - name: Scoring core test (deterministic, from the committed frozen model)
         run: python app/backend/test_scoring.py
       - name: End-to-end API test

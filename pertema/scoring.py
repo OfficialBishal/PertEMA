@@ -172,5 +172,9 @@ class PertEMAModel:
 
 
 def default_model():
+    """Load the bundled demonstration model. Override the location with the PERTEMA_MODEL_DIR environment
+    variable, for example to score against a model refit on your own screen."""
     here = os.path.dirname(os.path.abspath(__file__))
-    return PertEMAModel(os.path.join(here, "..", "model", "pertema_model_v0.1.0"))
+    model_dir = os.environ.get("PERTEMA_MODEL_DIR") or os.path.join(
+        here, "..", "app", "model", "pertema_model_v0.1.0")
+    return PertEMAModel(model_dir)
