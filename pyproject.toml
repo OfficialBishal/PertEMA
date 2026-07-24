@@ -48,6 +48,12 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 120
 
+[tool.ruff.lint]
+# Select the rule set explicitly so the checked rules do not change when ruff's
+# implicit defaults change between releases. This is the pycodestyle-error and
+# pyflakes set the code is written and verified against.
+select = ["E4", "E7", "E9", "F"]
+
 [tool.ruff.lint.per-file-ignores]
 # the FastAPI service uses a sys.path shim before its imports; the API test script uses compact assertions
 "app/backend/main.py" = ["E402"]

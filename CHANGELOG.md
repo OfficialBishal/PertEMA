@@ -31,6 +31,9 @@ All notable changes to this project are documented here. The format follows
   intentional import ordering and the API test script's compact assertions.
 
 ### Changed
+- Pinned the ruff rule set (`E4`, `E7`, `E9`, `F`) in `pyproject.toml` and the ruff version in CI so the lint
+  step is deterministic and does not break when ruff's implicit defaults change between releases. No behavior
+  change.
 - Reformatted a few compact multi-statement lines in the core and dropped two placeholder-free f-string
   prefixes so the `pertema` package passes ruff with no per-file exceptions. No behavior change.
 
